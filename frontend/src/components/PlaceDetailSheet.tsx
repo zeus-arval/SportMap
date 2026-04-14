@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, Flag, MessageSquare, Clock } from 'lucide-react';
+import { X, MapPin, Flag, ExternalLink, MessageSquare, Clock, Share2 } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/date-utils';
 import { feedService } from '@/services/feed.service';
 import type { PostDto } from '@/types/post';
 import type { PlaceDto } from '@/types/place';
+import DirectionsModal from './DirectionsModal';
 
 interface PlaceDetailSheetProps {
   place: PlaceDto | null;
@@ -20,6 +21,42 @@ export default function PlaceDetailSheet({
   const [posts, setPosts] = useState<PostDto[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  const [isDirectionsModalOpen, setIsDirectionsModalOpen] = useState(false);
+  const [showCopiedToast, setShowCopiedToast] = useState(false);
+
+  const handleShare = async () => {
+    if (!place) return;
+    
+    // Construct the share URL
+    const shareUrl = new URL(window.location.origin + window.location.pathname);
+    shareUrl.searchParams.set('placeId', place.id);
+    const finalUrl = shareUrl.toString();
+
+    const shareData = {
+      title: place.name,
+      text: `Check out ${place.name} on FitMap!`,
+      url: finalUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(finalUrl);
+        setShowCopiedToast(true);
+        setTimeout(() => setShowCopiedToast(false), 3000);
+      }
+    } catch (err) {
+      if (err instanceof Error && err.name !== 'AbortError') {
+        console.error('Error sharing:', err);
+      }
+    }
+  };
+
+  const handleGetDirections = () => {
+    if (!place) return;
+    setIsDirectionsModalOpen(true);
+  };
 
   // Initial fetch
   useEffect(() => {
@@ -70,9 +107,8 @@ export default function PlaceDetailSheet({
 
   if (!place) return null;
 
-  // Get image URL - prioritize place.image.url, fallback to a default
-  const imageUrl = place.image?.url || 
-    'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80';
+  // Get image URL - fallback to a default until image functionality is ready
+  const imageUrl = 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&q=80';
 
   return (
     <AnimatePresence>
@@ -147,6 +183,14 @@ export default function PlaceDetailSheet({
                     )}
                   </div>
                 </div>
+                <div className="flex flex-col items-end space-y-2">
+                  <button 
+                    onClick={handleGetDirections}
+                    className="flex items-center text-blue-400 text-xs font-medium hover:text-blue-300 transition-colors"
+                  >
+                    Get Directions <ExternalLink size={10} className="ml-1" />
+                  </button>
+                </div>
               </div>
 
               {/* Description */}
@@ -164,8 +208,16 @@ export default function PlaceDetailSheet({
                   <button className="flex-1 py-3 rounded-xl bg-[#12121a] border border-white/10 text-white font-semibold text-sm hover:bg-white/5 transition-colors">
                     Add to Favorites
                   </button>
+                  <button 
+                    onClick={handleShare}
+                    className="p-3 rounded-xl bg-[#12121a] border border-white/10 text-white hover:bg-white/5 transition-colors flex items-center justify-center shrink-0"
+                    title="Share"
+                  >
+                    <Share2 size={20} />
+                  </button>
                 </div>
               </div>
+
 
               {/* Place Feed placeholder */}
               <div className="mb-8">
@@ -209,6 +261,28 @@ export default function PlaceDetailSheet({
             </div>
         </motion.div>
 
+        <DirectionsModal 
+          isOpen={isDirectionsModalOpen}
+          onClose={() => setIsDirectionsModalOpen(false)}
+          lat={place.latitude}
+          lng={place.longitude}
+          placeName={place.name}
+        />
+
+        {/* Transient Toast Notification */}
+        <AnimatePresence>
+          {showCopiedToast && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, x: '-50%' }}
+              exit={{ opacity: 0, y: 20, x: '-50%' }}
+              className="fixed bottom-12 left-1/2 bg-[#1a1a24] text-white px-6 py-3 rounded-full text-sm font-medium z-[150] shadow-2xl border border-white/10 flex items-center whitespace-nowrap"
+            >
+              <div className="w-2 h-2 rounded-full bg-blue-500 mr-3 animate-pulse" />
+              Link copied to clipboard
+            </motion.div>
+          )}
+        </AnimatePresence>
       </>
     </AnimatePresence>
   );

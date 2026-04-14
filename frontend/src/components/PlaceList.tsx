@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import type { PlaceDto } from '@/services/place.service';
+import type { PlaceDto } from '@/types/place';
 import { RefreshCw } from 'lucide-react';
 
 interface PlaceListProps {

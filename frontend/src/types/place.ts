@@ -1,3 +1,10 @@
+export interface PlaceTypeDto {
+  id: string;
+  name: string;
+  description: string;  
+  createdAt: string;
+}
+
 export interface PlaceDto {
   id: string;
   name: string;
@@ -13,11 +20,10 @@ export interface PlaceDto {
   createdAt: string;
   updatedAt?: string;
   status: string;
+  
+  // UI-specific / Additional fields
+  reviewerId?: string;
 }
 
-export interface PlaceTypeDto {
-  id: string;
-  name: string;
-  description: string;  
-  createdAt: string;
-}
+export type Place = PlaceDto;
+export type PlaceType = PlaceTypeDto;

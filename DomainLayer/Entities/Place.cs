@@ -1,5 +1,6 @@
 using DomainLayer.Common;
 using DomainLayer.Entities.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DomainLayer.Entities
 {
@@ -7,6 +8,8 @@ namespace DomainLayer.Entities
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        
+        [ForeignKey(nameof(PlaceType))]
         public Guid PlaceTypeId { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
@@ -17,7 +20,6 @@ namespace DomainLayer.Entities
         public Guid? ReviewerId { get; set; }
 
         public PlaceType? PlaceType { get; set; }
-        public Image? Image { get; set; }
         public User Creator { get; set; } = null!;
         public User? Reviewer { get; set; }
     }

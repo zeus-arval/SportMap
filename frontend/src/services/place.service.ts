@@ -42,6 +42,19 @@ export class PlaceService extends BaseService<PlaceDto> {
       );
     }
   }
+
+  async getById(id: string): Promise<ResultOf<PlaceDto>> {
+    try {
+      const url = `${this.url}/${id}`;
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
+      return ResultOf.withValue((await response.json()) as PlaceDto);
+    } catch (error) {
+      return ResultOf.withError<PlaceDto>(
+        error instanceof Error ? error : new Error(String(error))
+      );
+    }
+  }
 }
 
 import { ResultOf } from '@/lib/result';
