@@ -1,8 +1,11 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using SportMap.DAL.DataContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,11 +78,25 @@ builder.Services
             options.ClientId = "disabled";
             options.ClientSecret = "disabled";
         }
+
     });
 
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+// Run EF migrations automatically on startup in production
+if (!app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
+});
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
