@@ -78,7 +78,6 @@ builder.Services
             options.ClientId = "disabled";
             options.ClientSecret = "disabled";
         }
-
     });
 
 builder.Services.AddAuthorization();
