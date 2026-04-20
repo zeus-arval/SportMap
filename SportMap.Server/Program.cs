@@ -62,6 +62,15 @@ builder.Services
             ValidateLifetime            = true,
             ClockSkew                   = TimeSpan.FromSeconds(30),
         };
+        options.Events = new Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerEvents
+        {
+            OnMessageReceived = ctx =>
+            {
+                if (string.IsNullOrEmpty(ctx.Token))
+                    ctx.Token = ctx.Request.Cookies["access_token"];
+                return Task.CompletedTask;
+            }
+        };
     })
     .AddGoogle(options =>
     {
