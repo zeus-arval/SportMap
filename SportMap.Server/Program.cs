@@ -45,7 +45,7 @@ builder.Services
     .AddAuthentication(options =>
     {
         options.DefaultScheme           = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme  = GoogleDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme  = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultSignInScheme     = "Cookies";
     })
     .AddCookie("Cookies")
