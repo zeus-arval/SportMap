@@ -92,10 +92,13 @@ if (!app.Environment.IsDevelopment())
     db.Database.Migrate();
 }
 
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+var forwardedOptions = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedHost
-});
+};
+forwardedOptions.KnownNetworks.Clear();
+forwardedOptions.KnownProxies.Clear();
+app.UseForwardedHeaders(forwardedOptions);
 
 // Configure the HTTP request pipeline.
 app.UseExceptionHandler();
