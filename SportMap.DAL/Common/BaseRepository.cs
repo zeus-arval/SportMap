@@ -34,11 +34,16 @@ namespace SportMap.DAL.Common
             }
         }
 
-        public async Task<IReadOnlyList<TData>> GetAllAsync(CancellationToken ct = default)
+        public async Task<IReadOnlyList<TData>> GetAllAsync(CancellationToken ct = default, params Expression<Func<TData, object>>[] includes)
         {
             try
             {
-                var entities = await _dbSet.AsNoTracking().ToListAsync(ct);
+                var query = _dbSet.AsNoTracking();
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+                var entities = await query.ToListAsync(ct);
                 return entities.AsReadOnly();
             }
             catch (Exception ex)

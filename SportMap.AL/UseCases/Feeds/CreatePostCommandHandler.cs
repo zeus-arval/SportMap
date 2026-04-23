@@ -8,7 +8,7 @@ using SportMap.DAL.Abstractions;
 
 namespace SportMap.AL.UseCases.Feeds
 {
-    public record CreatePostCommand(string Content, string Title, Guid? AuthorId = null) : ICommand<PostDTO>;
+    public record CreatePostCommand(string Content, string Title, Guid? AuthorId = null, Guid? PlaceId = null) : ICommand<PostDTO>;
 
     public class CreatePostCommandHandler(
         IUnitOfWork unitOfWork,
@@ -27,6 +27,7 @@ namespace SportMap.AL.UseCases.Feeds
                     Content   = command.Content,
                     Status    = StatusType.Pending,
                     AuthorId  = command.AuthorId,
+                    PlaceId   = command.PlaceId ?? Guid.Empty,
                     CreatedAt = DateTime.UtcNow,
                 };
 

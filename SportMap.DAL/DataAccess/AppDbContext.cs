@@ -14,6 +14,8 @@ namespace SportMap.DAL.DataContext
         public DbSet<Personalization> Personalization => Set<Personalization>();
         public DbSet<Post> Posts => Set<Post>();
         public DbSet<ImageData> Images => Set<ImageData>();
+        public DbSet<Place> Places => Set<Place>();
+        public DbSet<PlaceType> PlaceTypes => Set<PlaceType>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -63,6 +65,16 @@ namespace SportMap.DAL.DataContext
                       .WithMany()
                       .HasForeignKey(img => img.ReviewerId)
                       .OnDelete(DeleteBehavior.SetNull);
+            });
+            
+            modelBuilder.Entity<Place>(entity =>
+            {
+                entity.ConfigureBaseModelFields();
+            });
+
+            modelBuilder.Entity<PlaceType>(entity =>
+            {
+                entity.ConfigureBaseModelFields();
             });
         }
     }

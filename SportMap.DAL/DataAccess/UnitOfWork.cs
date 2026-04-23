@@ -9,7 +9,9 @@ namespace SportMap.DAL.DataAccess
         AppDbContext dbContext,
         IPostRepository postRepo,
         IImageRepository imageRepo,
+        IPlaceRepository placeRepo,
         IUserRepository userRepo,
+        IPlaceTypeRepository placeTypeRepo,
         IPersonalizationRepository personalizationRepo,
         IPrivacyTypeRepository privacyTypeRepo,
         ILogger<UnitOfWork> logger) : IUnitOfWork
@@ -20,6 +22,8 @@ namespace SportMap.DAL.DataAccess
         public IPostRepository PostRepository => postRepo;
         public IImageRepository ImageRepository => imageRepo;
         public IUserRepository UserRepository => userRepo;
+        public IPlaceRepository PlaceRepository => placeRepo;
+        public IPlaceTypeRepository PlaceTypeRepository => placeTypeRepo;
         public IPersonalizationRepository PersonalizationRepository => personalizationRepo;
         public IPrivacyTypeRepository PrivacyTypeRepository => privacyTypeRepo;
         #endregion

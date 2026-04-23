@@ -3,124 +3,59 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import PlaceDetailSheet, { Place } from './PlaceDetailSheet';
+import PlaceDetailSheet from './PlaceDetailSheet';
 import { RecenterButton } from './navigation/RecenterButton';
+import type { PlaceDto } from '@/types/place';
 
-const TALLINN_LOCATIONS: Place[] = [
-  {
-    id: '1',
-    name: 'Toompark',
-    placeTypeId: '1',
-    placeType: { id: '1', name: 'Park', description: 'Green area for recreation' },
-    location: { lat: 59.4379, lng: 24.7421 },
-    address: 'Lossi plats, Tallinn Old Town',
-    description: 'Historic park in the heart of Tallinn\'s Old Town with walking paths and sports facilities including table tennis.',
-    imageId: '1',
-    image: { id: '1', name: 'Toompark Image', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80', entityId: '1' },
-    creatorId: 'system',
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z',
-    status: 'verified',
-    distance: '0.5 km from center',
-    rating: 4.9,
-    tags: ['Park', 'Walking', 'Table Tennis', 'Historic']
-  },
-  {
-    id: '2',
-    name: 'Männi Park',
-    placeTypeId: '1',
-    placeType: { id: '1', name: 'Park', description: 'Green area for recreation' },
-    location: { lat: 59.3993, lng: 24.6759 },
-    address: 'Keskuse 1, 12911 Tallinn',
-    description: 'Family-friendly park with basketball court, table tennis, playground and restaurant nearby.',
-    imageId: '2',
-    image: { id: '2', name: 'Männi Park Image', url: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80', entityId: '2' },
-    creatorId: 'system',
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z',
-    status: 'verified',
-    distance: '2.3 km from center',
-    rating: 4.3,
-    tags: ['Park', 'Basketball', 'Table Tennis', 'Playground', 'Restaurant']
-  },
-  {
-    id: '3',
-    name: 'Tondiraba Park',
-    placeTypeId: '1',
-    placeType: { id: '1', name: 'Park', description: 'Green area for recreation' },
-    location: { lat: 59.4459, lng: 24.8526 },
-    address: 'Varraku 16, 13917 Tallinn',
-    description: 'Large sports and recreation area with ice rink, beach volleyball, bike paths and extensive trails.',
-    imageId: '3',
-    image: { id: '3', name: 'Tondiraba Park Image', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80', entityId: '3' },
-    creatorId: 'system',
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z',
-    status: 'verified',
-    distance: '3.1 km from center',
-    rating: 4.7,
-    tags: ['Park', 'Ice Rink', 'Beach Volleyball', 'Bike Path', 'Running Trails', 'Dog Park']
-  },
-  {
-    id: '4',
-    name: 'MyFitness Viru',
-    placeTypeId: '2',
-    placeType: { id: '2', name: 'Gym', description: 'Fitness center' },
-    location: { lat: 59.4365, lng: 24.7571 },
-    address: 'Viru väljak 4, 10153 Tallinn',
-    description: 'Modern fitness center in Viru keskus with state-of-the-art equipment and group training classes.',
-    imageId: '4',
-    image: { id: '4', name: 'MyFitness Viru Image', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80', entityId: '4' },
-    creatorId: 'system',
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z',
-    status: 'verified',
-    distance: '0.3 km from center',
-    rating: 4.7,
-    tags: ['Gym', 'Weight Training', 'Cardio', 'Group Training', '24/7 Access']
-  },
-  {
-    id: '5',
-    name: 'Kalev Spa Fitness Center',
-    placeTypeId: '2',
-    placeType: { id: '2', name: 'Gym', description: 'Fitness center' },
-    location: { lat: 59.4258, lng: 24.7512 },
-    address: 'Ahtri tn 6b, 10151 Tallinn',
-    description: 'Luxury fitness center with 50-meter pool, spa facilities and diverse workout programs.',
-    imageId: '5',
-    image: { id: '5', name: 'Kalev Spa Image', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80', entityId: '5' },
-    creatorId: 'system',
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z',
-    status: 'verified',
-    distance: '1.8 km from center',
-    rating: 4.6,
-    tags: ['Gym', 'Pool', 'Spa', 'Yoga', 'Pilates', 'Cardio']
-  },
-  {
-    id: '6',
-    name: 'Kose Stadium / Kose Park',
-    placeTypeId: '3',
-    placeType: { id: '3', name: 'Stadium', description: 'Sports stadium' },
-    location: { lat: 59.3109, lng: 24.9956 },
-    address: 'Puhkekodu tee 55b, Kose vald, Harju maakond',
-    description: 'Outdoor stadium with walking paths, benches, illumination and playground in Kose district.',
-    imageId: '6',
-    image: { id: '6', name: 'Kose Stadium Image', url: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80', entityId: '6' },
-    creatorId: 'system',
-    createdAt: '2023-01-01T00:00:00Z',
-    updatedAt: '2023-01-01T00:00:00Z',
-    status: 'verified',
-    distance: '12.4 km from center',
-    rating: 4.4,
-    tags: ['Stadium', 'Walking Paths', 'Playground', 'Illuminated', 'Outdoor Sports']
-  }
-];
+interface MapViewProps {
+  places: PlaceDto[];
+  selectedPlace?: PlaceDto | null;
+  onPlaceSelect?: (place: PlaceDto | null) => void;
+}
 
-export default function MapView() {
+const TALLINN_CENTER: [number, number] = [24.7421, 59.4379];
+
+export default function MapView({ places, selectedPlace: selectedPlaceProp, onPlaceSelect }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const userLocationMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceDto | null>(null);
+  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+
+  // Sync selectedPlace from parent and fly to location
+  useEffect(() => {
+    if (selectedPlaceProp) {
+      setSelectedPlace(selectedPlaceProp);
+      
+      // Fly to the selected place
+      const map = mapInstanceRef.current;
+      if (map) {
+        map.flyTo({
+          center: [selectedPlaceProp.longitude, selectedPlaceProp.latitude],
+          zoom: 16,
+          essential: true
+        });
+      }
+    }
+  }, [selectedPlaceProp]);
+
+  // When user clicks marker, notify parent
+  const handlePlaceClick = (place: PlaceDto) => {
+    setSelectedPlace(place);
+    if (onPlaceSelect) {
+      onPlaceSelect(place);
+    }
+  };
+
+  const handlePlaceClose = () => {
+    const map = mapInstanceRef.current;    
+    map?.zoomOut();    
+    setSelectedPlace(null);
+    if (onPlaceSelect) {
+      onPlaceSelect(null);
+    }
+  };
 
   const handleReport = () => {
     alert('Report functionality would be implemented here');
@@ -130,10 +65,18 @@ export default function MapView() {
     const map = mapInstanceRef.current;
     if (!map) return;
 
-    if ('geolocation' in navigator) {
+    // Use stored user location or get fresh one
+    if (userLocation) {
+      map.flyTo({
+        center: userLocation,
+        zoom: 14,
+        essential: true
+      });
+    } else if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const newCenter: [number, number] = [pos.coords.longitude, pos.coords.latitude];
+          setUserLocation(newCenter);
           map.flyTo({
             center: newCenter,
             zoom: 14,
@@ -144,7 +87,7 @@ export default function MapView() {
           console.warn('Unable to get current location for recentering: ', err);
           // Fallback to Tallinn center if geolocation denied
           map.flyTo({
-            center: [24.7421, 59.4379],
+            center: TALLINN_CENTER,
             zoom: 14,
             essential: true
           });
@@ -153,12 +96,27 @@ export default function MapView() {
     } else {
       // Fallback to Tallinn center if geolocation not supported
       map.flyTo({
-        center: [24.7421, 59.4379],
+        center: TALLINN_CENTER,
         zoom: 14,
         essential: true
       });
     }
   };
+
+  // Get user location on mount
+  useEffect(() => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const location: [number, number] = [pos.coords.longitude, pos.coords.latitude];
+          setUserLocation(location);
+        },
+        (err) => {
+          console.warn('Unable to get user location:', err);
+        }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -184,6 +142,7 @@ export default function MapView() {
           navigator.geolocation.getCurrentPosition(
             (pos) => {
               center = [pos.coords.longitude, pos.coords.latitude] as [number, number];
+              setUserLocation(center);
               resolve();
             },
             (err) => {
@@ -215,33 +174,14 @@ export default function MapView() {
         // Store map instance
         mapInstanceRef.current = map;
 
-        // Add markers for Tallinn locations
-        map.on('load', () => {
-          TALLINN_LOCATIONS.forEach((place) => {
-            // Create a custom marker element
-            const el = document.createElement('div');
-            el.className = 'custom-marker';
-            el.style.width = '30px';
-            el.style.height = '30px';
-            el.style.backgroundColor = place.placeType?.name === 'Park' ? '#22c55e' : 
-                                      place.placeType?.name === 'Gym' ? '#3b82f6' : 
-                                      place.placeType?.name === 'Stadium' ? '#f97316' : '#a855f7';
-            el.style.borderRadius = '50%';
-            el.style.border = '2px solid #fff';
-            el.style.cursor = 'pointer';
-            el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-
-            // Add click handler
-            el.addEventListener('click', () => {
-              setSelectedPlace(place);
-            });
-
-            // Add marker to map
-            new mapboxgl.Marker(el)
-              .setLngLat([place.location.lng, place.location.lat])
-              .addTo(map!);
+        // If there's an initial selected place, fly to it
+        if (selectedPlaceProp) {
+          map.flyTo({
+            center: [selectedPlaceProp.longitude, selectedPlaceProp.latitude],
+            zoom: 16,
+            essential: true
           });
-        });
+        }
       } catch (error) {
         console.error('Error initializing Mapbox map:', error);
       }
@@ -256,6 +196,100 @@ export default function MapView() {
       }
     };
   }, []);
+
+  // Add user location marker when location changes
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map || !userLocation) return;
+
+    // Remove existing user location marker
+    if (userLocationMarkerRef.current) {
+      userLocationMarkerRef.current.remove();
+    }
+
+    // Create user location marker element
+    const el = document.createElement('div');
+    el.className = 'user-location-marker';
+    el.style.width = '20px';
+    el.style.height = '20px';
+    el.style.backgroundColor = '#3b82f6';
+    el.style.borderRadius = '50%';
+    el.style.border = '3px solid #fff';
+    el.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.3), 0 0 10px rgba(0,0,0,0.3)';
+
+    // Add to map
+    const marker = new mapboxgl.Marker(el)
+      .setLngLat(userLocation)
+      .addTo(map);
+    
+    userLocationMarkerRef.current = marker;
+
+    return () => {
+      if (userLocationMarkerRef.current) {
+        userLocationMarkerRef.current.remove();
+        userLocationMarkerRef.current = null;
+      }
+    };
+  }, [userLocation]);
+
+  // Add markers when places change
+  useEffect(() => {
+    const addMarkers = () => {
+      const map = mapInstanceRef.current;
+      if (!map) return;
+
+      // Clear existing markers
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current = [];
+
+      if (places.length === 0) return;
+
+      places.forEach((place) => {
+        // Create a custom marker element
+        const el = document.createElement('div');
+        el.className = 'custom-marker';
+        el.style.width = '30px';
+        el.style.height = '30px';
+        el.style.backgroundColor = place.placeType?.name === 'Park' ? '#22c55e' : 
+                                  place.placeType?.name === 'Gym' ? '#3b82f6' : 
+                                  place.placeType?.name === 'Stadium' ? '#f97316' : '#a855f7';
+        el.style.borderRadius = '50%';
+        el.style.border = '2px solid #fff';
+        el.style.cursor = 'pointer';
+        el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+
+        // Add click handler
+        el.addEventListener('click', () => {
+          handlePlaceClick(place);
+        });
+
+        // Add marker to map
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([place.longitude, place.latitude])
+          .addTo(map);
+        
+        markersRef.current.push(marker);
+      });
+    };
+
+    // Try to add markers immediately, or retry after short delay
+    const tryAddMarkers = () => {
+      const map = mapInstanceRef.current;
+      if (!map) {
+        setTimeout(tryAddMarkers, 100);
+        return;
+      }
+      
+      if (!map.isStyleLoaded()) {
+        map.once('load', addMarkers);
+        return;
+      }
+      
+      addMarkers();
+    };
+
+    tryAddMarkers();
+  }, [places]);
 
   return (
     <div className="w-full h-full relative">
@@ -274,13 +308,14 @@ export default function MapView() {
           height: 36px !important;
         }
       `}</style>
+      
       <div ref={mapRef} className="w-full h-full" />
       <div className="absolute top-4 right-4 z-30">
         <RecenterButton onClick={handleRecenter} />
       </div>
       <PlaceDetailSheet
         place={selectedPlace}
-        onClose={() => setSelectedPlace(null)}
+        onClose={handlePlaceClose}
         onReport={handleReport} />
     </div>
   );
