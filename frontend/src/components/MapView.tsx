@@ -3,9 +3,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import PlaceDetailSheet, { Place } from './PlaceDetailSheet';
+import PlaceDetailSheet from './PlaceDetailSheet';
 import { RecenterButton } from './navigation/RecenterButton';
-import type { PlaceDto } from '@/services/place.service';
+import type { PlaceDto } from '@/types/place';
 
 interface MapViewProps {
   places: PlaceDto[];
@@ -15,47 +15,24 @@ interface MapViewProps {
 
 const TALLINN_CENTER: [number, number] = [24.7421, 59.4379];
 
-// Convert API PlaceDto to frontend Place interface
-function mapToPlace(dto: PlaceDto): Place {
-  return {
-    id: dto.id,
-    name: dto.name,
-    placeTypeId: dto.placeTypeId,
-    placeType: dto.placeType ? {
-      id: dto.placeType.id,
-      name: dto.placeType.name,
-      description: dto.placeType.description
-    } : undefined,
-    location: { lat: dto.latitude, lng: dto.longitude },
-    address: dto.address,
-    description: dto.description,
-    imageId: dto.imageId || '',
-    creatorId: dto.creatorId,
-    createdAt: dto.createdAt,
-    updatedAt: dto.updatedAt || '',
-    status: dto.status
-  };
-}
-
 export default function MapView({ places, selectedPlace: selectedPlaceProp, onPlaceSelect }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
   const userLocationMarkerRef = useRef<mapboxgl.Marker | null>(null);
-  const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<PlaceDto | null>(null);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
   // Sync selectedPlace from parent and fly to location
   useEffect(() => {
     if (selectedPlaceProp) {
-      const place = mapToPlace(selectedPlaceProp);
-      setSelectedPlace(place);
+      setSelectedPlace(selectedPlaceProp);
       
       // Fly to the selected place
       const map = mapInstanceRef.current;
       if (map) {
         map.flyTo({
-          center: [place.location.lng, place.location.lat],
+          center: [selectedPlaceProp.longitude, selectedPlaceProp.latitude],
           zoom: 16,
           essential: true
         });
@@ -64,35 +41,16 @@ export default function MapView({ places, selectedPlace: selectedPlaceProp, onPl
   }, [selectedPlaceProp]);
 
   // When user clicks marker, notify parent
-  const handlePlaceClick = (place: Place) => {
+  const handlePlaceClick = (place: PlaceDto) => {
     setSelectedPlace(place);
     if (onPlaceSelect) {
-      // Convert back to DTO for parent
-      const dto: PlaceDto = {
-        id: place.id,
-        name: place.name,
-        placeTypeId: place.placeTypeId,
-        latitude: place.location.lat,
-        longitude: place.location.lng,
-        address: place.address || '',
-        description: place.description,
-        creatorId: place.creatorId,
-        createdAt: place.createdAt,
-        updatedAt: place.updatedAt || '',
-        status: place.status,
-        placeType: place.placeType ? {
-          id: place.placeType.id,
-          name: place.placeType.name,
-          description: place.placeType.description
-        } : undefined
-      };
-      onPlaceSelect(dto);
+      onPlaceSelect(place);
     }
   };
 
   const handlePlaceClose = () => {
     const map = mapInstanceRef.current;    
-    map.zoomOut();    
+    map?.zoomOut();    
     setSelectedPlace(null);
     if (onPlaceSelect) {
       onPlaceSelect(null);
@@ -215,6 +173,15 @@ export default function MapView({ places, selectedPlace: selectedPlaceProp, onPl
         
         // Store map instance
         mapInstanceRef.current = map;
+
+        // If there's an initial selected place, fly to it
+        if (selectedPlaceProp) {
+          map.flyTo({
+            center: [selectedPlaceProp.longitude, selectedPlaceProp.latitude],
+            zoom: 16,
+            essential: true
+          });
+        }
       } catch (error) {
         console.error('Error initializing Mapbox map:', error);
       }
@@ -275,11 +242,9 @@ export default function MapView({ places, selectedPlace: selectedPlaceProp, onPl
       markersRef.current.forEach(marker => marker.remove());
       markersRef.current = [];
 
-      const mappedPlaces = places.map(mapToPlace);
+      if (places.length === 0) return;
 
-      if (mappedPlaces.length === 0) return;
-
-      mappedPlaces.forEach((place) => {
+      places.forEach((place) => {
         // Create a custom marker element
         const el = document.createElement('div');
         el.className = 'custom-marker';
@@ -300,7 +265,7 @@ export default function MapView({ places, selectedPlace: selectedPlaceProp, onPl
 
         // Add marker to map
         const marker = new mapboxgl.Marker(el)
-          .setLngLat([place.location.lng, place.location.lat])
+          .setLngLat([place.longitude, place.latitude])
           .addTo(map);
         
         markersRef.current.push(marker);
