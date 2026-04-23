@@ -1,43 +1,13 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, MapPin, Star, Flag, Trophy, ExternalLink } from 'lucide-react';
-
-export interface PlaceType {
-  id: string;
-  name: string;
-  description: string;
-}
-
-export interface Image {
-  id: string;
-  name: string;
-  url: string;
-  entityId: string;
-}
-
-export interface Place {
-  id: string;
-  name: string;
-  placeTypeId: string;
-  placeType?: PlaceType;
-  location: { lat: number; lng: number };
-  address?: string;
-  description?: string;
-  imageId: string;
-  image?: Image;
-  creatorId: string;
-  createdAt: string;
-  updatedAt: string;
-  status: string;
-  reviewerId?: string;
-  // UI-specific fields (calculated/not in DB)
-  distance?: string;
-  rating?: number;
-  tags?: string[];
-}
+import { X, MapPin, Flag, MessageSquare, Clock } from 'lucide-react';
+import { formatRelativeTime } from '@/lib/date-utils';
+import { feedService } from '@/services/feed.service';
+import type { PostDto } from '@/types/post';
+import type { PlaceDto } from '@/types/place';
 
 interface PlaceDetailSheetProps {
-  place: Place | null;
+  place: PlaceDto | null;
   onClose: () => void;
   onReport: () => void;
 }
@@ -47,6 +17,57 @@ export default function PlaceDetailSheet({
   onClose,
   onReport
 }: PlaceDetailSheetProps) {
+  const [posts, setPosts] = useState<PostDto[]>([]);
+  const [isLoadingPosts, setIsLoadingPosts] = useState(false);
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+
+  // Initial fetch
+  useEffect(() => {
+    if (place?.id) {
+      setIsLoadingPosts(true);
+      
+      const loadData = async () => {
+        const [postsResult, latestUpdateResult] = await Promise.all([
+          feedService.getByPlaceId(place.id!),
+          feedService.getLatestUpdate(place.id!)
+        ]);
+        
+        if (postsResult.value) {
+          setPosts(postsResult.value);
+        }
+        if (latestUpdateResult.value) {
+          setLastUpdate(latestUpdateResult.value);
+        }
+        setIsLoadingPosts(false);
+      };
+
+      loadData();
+    } else {
+      setPosts([]);
+      setLastUpdate(null);
+    }
+  }, [place?.id]);
+
+  // Polling for updates
+  useEffect(() => {
+    if (!place?.id) return;
+
+    const pollInterval = setInterval(async () => {
+      const result = await feedService.getLatestUpdate(place.id!);
+      
+      // Only refresh posts if the latest update timestamp changed
+      if (result.value && result.value !== lastUpdate) {
+        const postsResult = await feedService.getByPlaceId(place.id!);
+        if (postsResult.value) {
+          setPosts(postsResult.value);
+          setLastUpdate(result.value);
+        }
+      }
+    }, 10000); // Poll every 10 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [place?.id, lastUpdate]);
+
   if (!place) return null;
 
   // Get image URL - prioritize place.image.url, fallback to a default
@@ -115,38 +136,16 @@ export default function PlaceDetailSheet({
                   <div className="flex items-center text-gray-400 text-sm mb-2">
                     <MapPin size={14} className="mr-1 text-blue-400" />
                     <span>
-                      {place.distance} •{' '}
                       {place.address || 'Tallinn, Estonia'}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {place.tags?.map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-xs text-gray-300"
-                      >
-                        {tag}
-                      </span>
-                    )) || (
+                    {place.placeType && (
                       <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-xs text-gray-300">
-                        {place.placeType?.name || 'Unknown'}
+                        {place.placeType.name}
                       </span>
                     )}
                   </div>
-                </div>
-                <div className="flex flex-col items-end space-y-2">
-                  <div className="flex items-center bg-yellow-500/10 px-2 py-1 rounded-lg border border-yellow-500/20">
-                    <Star
-                      size={14}
-                      className="text-yellow-500 mr-1 fill-yellow-500"
-                    />
-                    <span className="text-yellow-500 font-bold text-sm">
-                      {place.rating || 'N/A'}
-                    </span>
-                  </div>
-                  <button className="flex items-center text-blue-400 text-xs font-medium hover:text-blue-300 transition-colors">
-                    Get Directions <ExternalLink size={10} className="ml-1" />
-                  </button>
                 </div>
               </div>
 
@@ -157,55 +156,14 @@ export default function PlaceDetailSheet({
               </p>
 
               {/* Actions Grid */}
-              <div className="grid grid-cols-2 gap-3 mb-8">
-                <button className="py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all active:scale-[0.98]">
+              <div className="flex gap-3 mb-8">
+                <button className="flex-1 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] transition-all active:scale-[0.98]">
                   Check In Now
                 </button>
-                <button className="py-3 rounded-xl bg-[#12121a] border border-white/10 text-white font-semibold text-sm hover:bg-white/5 transition-colors">
-                  Add to Favorites
-                </button>
-              </div>
-
-              {/* Active Challenges */}
-              <div className="mb-8">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center justify-between">
-                  Active Challenges
-                  <span className="text-blue-400 text-xs cursor-pointer">
-                    View All
-                  </span>
-                </h3>
-                <div className="space-y-3">
-                  {[1, 2].map((i) => (
-                    <div
-                      key={i}
-                      className="bg-white/5 p-3 rounded-xl border border-white/5 flex items-center hover:bg-white/10 transition-colors cursor-pointer"
-                    >
-                      <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mr-3 text-blue-400">
-                        <Trophy size={18} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-white font-medium text-sm">
-                          Morning Sprint {i}
-                        </p>
-                        <p className="text-gray-500 text-xs">
-                          24 participants • Ends in 2h
-                        </p>
-                      </div>
-                      <button className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">
-                        Join
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Upcoming Events placeholder */}
-              <div className="mb-8">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                  Upcoming Events
-                </h3>
-                <div className="text-gray-500 text-sm">
-                  No upcoming events at this location.
+                <div className="flex-1 flex gap-2">
+                  <button className="flex-1 py-3 rounded-xl bg-[#12121a] border border-white/10 text-white font-semibold text-sm hover:bg-white/5 transition-colors">
+                    Add to Favorites
+                  </button>
                 </div>
               </div>
 
@@ -214,12 +172,43 @@ export default function PlaceDetailSheet({
                 <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
                   Recent Activity
                 </h3>
-                <div className="text-gray-500 text-sm">
-                  No recent activity at this location.
-                </div>
+                {isLoadingPosts ? (
+                  <div className="flex justify-center py-4">
+                    <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                ) : posts.length > 0 ? (
+                  <div className="space-y-4">
+                    {posts.map((post) => (
+                      <div key={post.id} className="bg-white/5 p-4 rounded-xl border border-white/5">
+                        <div className="flex items-center mb-2">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold mr-3">
+                            {post.title.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="text-white font-medium text-sm">{post.title}</p>
+                            <div className="flex items-center text-gray-500 text-xs">
+                              <Clock size={10} className="mr-1" />
+                              <span>{formatRelativeTime(post.createdAt)}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-gray-300 text-sm">{post.content}</p>
+                        <div className="mt-3 flex items-center text-gray-500 text-xs">
+                          <MessageSquare size={12} className="mr-1" />
+                          <span>Reply</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-gray-500 text-sm">
+                    No recent activity at this location.
+                  </div>
+                )}
               </div>
             </div>
         </motion.div>
+
       </>
     </AnimatePresence>
   );

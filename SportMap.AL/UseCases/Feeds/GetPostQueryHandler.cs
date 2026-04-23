@@ -28,7 +28,9 @@ namespace SportMap.AL.UseCases.Feeds
                 var postData= await unitOfWork.PostRepository.GetAllAsync(cancellationToken);
                 var filteredPosts = postData
                     .Where(post => post.Status.Equals(query.Status))
-                    .FilterIfNotNull(query.Id, (post, id) => post.Id == id);
+                    .FilterIfNotNull(query.Id, (post, id) => post.Id == id)
+                    .FilterIfNotNull(query.PlaceId, (post, placeId) => post.PlaceId == placeId)
+                    .OrderByDescending(post => post.CreatedAt);
 
                 posts = filteredPosts
                     .Select(post => post.Map())
@@ -50,5 +52,5 @@ namespace SportMap.AL.UseCases.Feeds
         }
     }
 
-    public record GetPostQuery(Guid? Id, StatusType Status) : IQuery<IReadOnlyList<PostDTO>>;
+    public record GetPostQuery(Guid? Id, StatusType Status, Guid? PlaceId = null) : IQuery<IReadOnlyList<PostDTO>>;
 }

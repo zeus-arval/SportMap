@@ -11,7 +11,7 @@ namespace SportMap.AL.UseCases.Feeds
     {
         public async Task<Result<PostDTO>> Handle(CreatePostCommand command, CancellationToken cancellationToken)
         {
-            var post = new PostDTO(Guid.NewGuid(), command.Title, command.Content, StatusType.Pending);
+            var post = new PostDTO(Guid.NewGuid(), command.Title, command.Content, StatusType.Verified, command.PlaceId, DateTime.UtcNow);
             
             try
             {
@@ -36,5 +36,5 @@ namespace SportMap.AL.UseCases.Feeds
     }
 
     public record CreatePostCommand(string Content, 
-        string Title) : ICommand<PostDTO>;
+        string Title, Guid PlaceId) : ICommand<PostDTO>;
 }

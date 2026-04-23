@@ -20,10 +20,10 @@ namespace DomainLayer.Entities
         //public Guid AuthorId { get; set; }
         //public User Author { get; set; }
 
-        //[Required]
-        //[ForeignKey(nameof(Place))]
-        //public Guid PlaceId { get; set; }
-        //public Place Place { get; set; }
+        [Required]
+        [ForeignKey(nameof(Place))]
+        public Guid PlaceId { get; set; }
+        public Place Place { get; set; }
 
         //[Required]
         //[ForeignKey(nameof(Image))]

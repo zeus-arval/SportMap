@@ -14,7 +14,9 @@ namespace SportMap.AL.UseCases.Feeds
                     Content = data.Content,
                     Id = data.Id,
                     Title = data.Title,
-                    Status = data.Status
+                    Status = data.Status,
+                    PlaceId = data.PlaceId,
+                    CreatedAt = data.CreatedAt
                 };
             }
         }
@@ -28,7 +30,9 @@ namespace SportMap.AL.UseCases.Feeds
                     Id = dto.Id,
                     Content = dto.Content,
                     Status = dto.Status,
-                    Title = dto.Title
+                    Title = dto.Title,
+                    PlaceId = dto.PlaceId,
+                    CreatedAt = dto.CreatedAt
                 };
             }
         }

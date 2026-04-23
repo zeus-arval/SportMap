@@ -22,6 +22,7 @@ namespace SportMap.Al.Extensions
             // Posts
             serviceCollection.AddTransient<GetPostQueryHandler>();
             serviceCollection.AddTransient<CreatePostCommandHandler>();
+            serviceCollection.AddTransient<GetLatestUpdateQueryHandler>();
 
             // Images
             serviceCollection.AddTransient<GetImageQueryHandler>();
