@@ -1,10 +1,6 @@
 import { BaseService } from "./base.service";
 import type { PlaceTypeDto } from "@/types/place";
-<<<<<<< HEAD
 export type { PlaceTypeDto };
-=======
-export type { PlaceTypeDto } from "@/types/place";
->>>>>>> origin/main
 import { ResultOf } from "@/lib/result";
 
 export class PlaceTypeService extends BaseService<PlaceTypeDto> {

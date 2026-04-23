@@ -44,41 +44,12 @@ export default function MapView({ places, selectedPlace: selectedPlaceProp, onPl
   const handlePlaceClick = (place: PlaceDto) => {
     setSelectedPlace(place);
     if (onPlaceSelect) {
-<<<<<<< HEAD
-      // Convert back to DTO for parent
-      const dto: PlaceDto = {
-        id: place.id,
-        name: place.name,
-        placeTypeId: place.placeTypeId,
-        latitude: place.location.lat,
-        longitude: place.location.lng,
-        address: place.address || '',
-        description: place.description || '',
-        creatorId: place.creatorId,
-        createdAt: place.createdAt,
-        updatedAt: place.updatedAt || '',
-        status: place.status,
-        creatorName: '',
-        placeType: place.placeType ? {
-          id: place.placeType.id,
-          name: place.placeType.name,
-          description: place.placeType.description,
-          createdAt: ''
-        } : undefined
-      };
-      onPlaceSelect(dto);
-=======
       onPlaceSelect(place);
->>>>>>> origin/main
     }
   };
 
   const handlePlaceClose = () => {
-<<<<<<< HEAD
     const map = mapInstanceRef.current;
-=======
-    const map = mapInstanceRef.current;    
->>>>>>> origin/main
     map?.zoomOut();    
     setSelectedPlace(null);
     if (onPlaceSelect) {
