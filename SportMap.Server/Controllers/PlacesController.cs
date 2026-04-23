@@ -19,13 +19,13 @@ namespace SportMap.PL.Controllers
     {
         // GET: api/places
         [HttpGet]
-        public async Task<Results<InternalServerError, NotFound, Ok<IReadOnlyList<PlaceDto>>>> Get([FromQuery] Guid? placeTypeId)
+        public async Task<Results<InternalServerError, NotFound, Ok<IReadOnlyList<PlaceDto>>>> Get([FromQuery] Guid? placeTypeId, [FromQuery] Guid? placeId)
         {
             AL.Abstractions.UseCases.Result<IReadOnlyList<PlaceDto>>? result;
 
             try
             {
-                var query = new GetPlaceQuery(null, StatusType.Verified, placeTypeId);
+                var query = new GetPlaceQuery(placeId, StatusType.Verified, placeTypeId);
                 result = await getPlaces.Handle(query, CancellationToken.None);
             }
             catch (Exception e)

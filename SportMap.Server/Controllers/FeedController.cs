@@ -16,17 +16,18 @@ namespace SportMap.PL.Controllers
     public class FeedController(
         GetPostQueryHandler getPosts,
         CreatePostCommandHandler createPosts,
+        GetLatestUpdateQueryHandler getLatestUpdate,
         ILogger<FeedController> logger) : BaseController<PostDTO>(logger)
     {
         // GET: api/feed
         [HttpGet]
-        public async Task<Results<InternalServerError, NotFound, Ok<IReadOnlyList<PostDTO>>>> Get()
+        public async Task<Results<InternalServerError, NotFound, Ok<IReadOnlyList<PostDTO>>>> Get([FromQuery] Guid? placeId)
         {
             AL.Abstractions.UseCases.Result<IReadOnlyList<PostDTO>>? result;
 
             try
             {
-                var query = new GetPostQuery(null, StatusType.Verified);
+                var query = new GetPostQuery(null, StatusType.Verified, placeId);
                 result = await getPosts.Handle(query, CancellationToken.None);
             }
             catch (Exception e)
@@ -60,7 +61,7 @@ namespace SportMap.PL.Controllers
 
             try
             {
-                var query = new GetPostQuery(null, StatusType.Verified);
+                var query = new GetPostQuery(id, StatusType.Verified);
                 result = await getPosts.Handle(query, CancellationToken.None);
             }
             catch (Exception e)
@@ -86,14 +87,38 @@ namespace SportMap.PL.Controllers
             return TypedResults.Ok(posts[0]);
         }
 
+        // GET: api/feed/latest-update
+        [HttpGet("latest-update")]
+        public async Task<Results<InternalServerError, Ok<DateTime?>>> GetLatestUpdate([FromQuery] Guid placeId)
+        {
+            try
+            {
+                var query = new GetLatestUpdateQuery(placeId);
+                var result = await getLatestUpdate.Handle(query, CancellationToken.None);
+
+                if (result.HasError)
+                {
+                    _logger.LogError("{controllerName}.{methodName}: Error occurred while fetching latest update: {ErrorMessage}", nameof(FeedController), nameof(GetLatestUpdate), result.ErrorMessage);
+                    return TypedResults.InternalServerError();
+                }
+
+                return TypedResults.Ok(result.Data);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "{className}.{methodName}: Unhandled exception occured: {message}", nameof(FeedController), nameof(GetLatestUpdate), e.Message);
+                return TypedResults.InternalServerError();
+            }
+        }
+
         // POST: api/feed
         [HttpPost]
         [AllowAnonymous]
         public async Task<Results<InternalServerError, BadRequest, CreatedAtRoute<PostDTO>>> CreatePost([FromBody] CreatePostRequest request)
         {
-            if (request.Title.IsNullOrEmpty() || request.Content.IsNullOrEmpty())
+            if (request.Title.IsNullOrEmpty() || request.Content.IsNullOrEmpty() || request.PlaceId == Guid.Empty)
             {
-                _logger.LogWarning("Title or content is null or empty");
+                _logger.LogWarning("Title, content or placeId is null, empty or default");
 
                 return TypedResults.BadRequest();
             }
@@ -102,7 +127,7 @@ namespace SportMap.PL.Controllers
                            ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             Guid? authorId = Guid.TryParse(subClaim, out var parsed) ? parsed : null;
 
-            var command = new CreatePostCommand(request.Title, request.Content, authorId);
+            var command = new CreatePostCommand(request.Title, request.Content, authorId, request.PlaceId);
             var result = await createPosts.Handle(command, CancellationToken.None);
 
             if (result.HasError)
@@ -114,9 +139,10 @@ namespace SportMap.PL.Controllers
         }
     }
 
-    public class CreatePostRequest(string title, string content)
+    public class CreatePostRequest(string title, string content, Guid placeId)
     {
         public string Title { get; init; } = title;
         public string Content { get; init; } = content;
+        public Guid PlaceId { get; init; } = placeId;
     }
 }

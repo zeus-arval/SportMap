@@ -76,11 +76,6 @@ namespace SportMap.DAL.DataContext
             {
                 entity.ConfigureBaseModelFields();
             });
-
-            modelBuilder.Entity<Image>(entity =>
-            {
-                entity.ConfigureBaseModelFields();
-            });
         }
     }
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { placeService, type PlaceDto } from '@/services/place.service';
+import { placeService } from '@/services/place.service';
+import type { PlaceDto } from '@/types/place';
 
 interface SearchBarProps {
   onPlaceSelect: (place: PlaceDto) => void;

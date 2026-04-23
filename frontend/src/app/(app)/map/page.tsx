@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 import PlaceList from '@/components/PlaceList';
-import { placeService, type PlaceDto } from '@/services/place.service';
-import { placeTypeService, type PlaceTypeDto } from '@/services/place-type.service';
+import { placeService } from '@/services/place.service';
+import { placeTypeService } from '@/services/place-type.service';
+import type { PlaceDto, PlaceTypeDto } from '@/types/place';
 import SearchBar from '@/components/SearchBar';
 
 // Dynamic import for MapView to avoid SSR issues
@@ -13,7 +15,10 @@ const MapView = dynamic(() => import('@/components/MapView'), {
   loading: () => <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900 animate-pulse" />
 });
 
-export default function MapPage() {
+function MapContent() {
+  const searchParams = useSearchParams();
+  const placeIdFromUrl = searchParams.get('placeId');
+  
   const [view, setView] = useState<'map' | 'list'>('map');
   const [places, setPlaces] = useState<PlaceDto[]>([]);
   const [placeTypes, setPlaceTypes] = useState<PlaceTypeDto[]>([]);
@@ -21,6 +26,8 @@ export default function MapPage() {
   const [selectedPlace, setSelectedPlace] = useState<PlaceDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasProcessedUrlParam, setHasProcessedUrlParam] = useState(false);
+
   // Fetch place types
   useEffect(() => {
     async function fetchPlaceTypes() {
@@ -55,6 +62,37 @@ export default function MapPage() {
   useEffect(() => {
     fetchPlaces();
   }, [fetchPlaces]);
+
+  // Handle placeId from URL
+  useEffect(() => {
+    if (placeIdFromUrl && !hasProcessedUrlParam) {
+      const handleUrlParam = async () => {
+        // If places are still loading, wait or fetch specifically
+        // If not in currently loaded places (might be filtered out), fetch by ID
+        const existing = places.find(p => p.id === placeIdFromUrl);
+        if (existing) {
+          setSelectedPlace(existing);
+          setSelectedPlaceTypeId(null); // Clear filter to show the place
+          setView('map');
+          setHasProcessedUrlParam(true);
+        } else if (!loading) {
+          // If not loading and not found, fetch specifically
+          const result = await placeService.getById(placeIdFromUrl);
+          if (result.isSucceed && result.value) {
+            setPlaces(prev => {
+              if (prev.some(p => p.id === result.value!.id)) return prev;
+              return [...prev, result.value!];
+            });
+            setSelectedPlace(result.value);
+            setSelectedPlaceTypeId(null);
+            setView('map');
+          }
+          setHasProcessedUrlParam(true);
+        }
+      };
+      handleUrlParam();
+    }
+  }, [placeIdFromUrl, places, loading, hasProcessedUrlParam]);
 
   const handleSearchPlaceSelect = (place: PlaceDto) => {
     setSelectedPlace(place);
@@ -140,5 +178,13 @@ export default function MapPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={<div className="h-full w-full bg-zinc-50 dark:bg-black animate-pulse" />}>
+      <MapContent />
+    </Suspense>
   );
 }
