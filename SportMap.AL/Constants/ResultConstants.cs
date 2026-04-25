@@ -1,4 +1,4 @@
-﻿namespace SportMap.AL.Constants
+namespace SportMap.AL.Constants
 {
     public static class ResultConstants
     {
@@ -11,5 +11,7 @@
         public const string InternalError = "An internal error occurred. Please try again.";
         public const string OperationCanceled = "Operation was canceled.";
         public const string NoPictureSet = "No profile picture is currently set.";
+        public const string UsernameTaken = "Username '{0}' is already taken.";
+        public const string InvalidPrivacyValue = "Privacy value '{0}' is invalid. Use 'public' or 'private'.";
     }
 }

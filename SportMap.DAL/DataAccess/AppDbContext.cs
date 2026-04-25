@@ -48,6 +48,10 @@ namespace SportMap.DAL.DataContext
             modelBuilder.Entity<Post>(entity =>
             {
                 entity.ConfigureBaseModelFields();
+                entity.HasOne(post => post.Author)
+                      .WithMany()
+                      .HasForeignKey(post => post.AuthorId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             modelBuilder.Entity<ImageData>(entity =>

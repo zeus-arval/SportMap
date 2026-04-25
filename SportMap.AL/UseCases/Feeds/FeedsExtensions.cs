@@ -1,4 +1,4 @@
-﻿using DomainLayer.Entities;
+using DomainLayer.Entities;
 using SportMap.AL.DTOs;
 
 namespace SportMap.AL.UseCases.Feeds
@@ -11,12 +11,13 @@ namespace SportMap.AL.UseCases.Feeds
             {
                 return new PostDTO
                 {
-                    Content = data.Content,
-                    Id = data.Id,
-                    Title = data.Title,
-                    Status = data.Status,
-                    PlaceId = data.PlaceId,
-                    CreatedAt = data.CreatedAt
+                    Id        = data.Id,
+                    Title     = data.Title,
+                    Content   = data.Content,
+                    Status    = data.Status,
+                    AuthorId  = data.AuthorId,
+                    PlaceId   = data.PlaceId,
+                    CreatedAt = data.CreatedAt,
                 };
             }
         }
@@ -27,12 +28,12 @@ namespace SportMap.AL.UseCases.Feeds
             {
                 return new Post
                 {
-                    Id = dto.Id,
-                    Content = dto.Content,
-                    Status = dto.Status,
-                    Title = dto.Title,
-                    PlaceId = dto.PlaceId,
-                    CreatedAt = dto.CreatedAt
+                    Id       = dto.Id,
+                    Title    = dto.Title,
+                    Content  = dto.Content,
+                    Status   = dto.Status,
+                    AuthorId = dto.AuthorId,
+                    PlaceId  = dto.PlaceId ?? Guid.Empty,
                 };
             }
         }

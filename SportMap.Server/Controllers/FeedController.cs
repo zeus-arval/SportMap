@@ -1,4 +1,6 @@
-﻿using DomainLayer.Entities.Enums;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using DomainLayer.Entities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -51,7 +53,7 @@ namespace SportMap.PL.Controllers
             return TypedResults.Ok(posts);
         }
 
-        // GET: api/feed
+        // GET: api/feed/{id}
         [HttpGet("{id:guid}")]
         public async Task<Results<InternalServerError, NotFound, Ok<PostDTO>>> Get(Guid id)
         {
@@ -121,7 +123,11 @@ namespace SportMap.PL.Controllers
                 return TypedResults.BadRequest();
             }
 
-            var command = new CreatePostCommand(request.Title, request.Content, request.PlaceId);
+            var subClaim = User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value
+                           ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Guid? authorId = Guid.TryParse(subClaim, out var parsed) ? parsed : null;
+
+            var command = new CreatePostCommand(request.Title, request.Content, authorId, request.PlaceId);
             var result = await createPosts.Handle(command, CancellationToken.None);
 
             if (result.HasError)
