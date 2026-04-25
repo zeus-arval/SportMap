@@ -17,7 +17,7 @@ namespace SportMap.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.4")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -455,19 +455,24 @@ namespace SportMap.DAL.Migrations
             modelBuilder.Entity("DomainLayer.Entities.Post", b =>
                 {
                     b.HasOne("DomainLayer.Entities.User", "Author")
+<<<<<<< HEAD
                         .WithMany()
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("DomainLayer.Entities.Place", "Place")
+=======
+>>>>>>> origin/main
                         .WithMany()
-                        .HasForeignKey("PlaceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Author");
+<<<<<<< HEAD
 
                     b.Navigation("Place");
+=======
+>>>>>>> origin/main
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.User", b =>

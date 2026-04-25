@@ -1,4 +1,5 @@
 import { ResultOf } from "@/lib/result";
+<<<<<<< HEAD
 
 export type UserProfile = {
   id: string;
@@ -30,6 +31,11 @@ export type UpdateProfileRequest = {
   userName?: string;
   birthdate?: string;
 };
+=======
+import type { UserProfile, UserPost, UserSettings, UpdateProfileRequest } from "@/types/user";
+
+export type { UserProfile, UserPost, UserSettings, UpdateProfileRequest };
+>>>>>>> origin/main
 
 class ProfileService {
   private readonly baseUrl = "/api";
