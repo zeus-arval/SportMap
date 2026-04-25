@@ -36,8 +36,6 @@ namespace SportMap.Al.Extensions
 
             // Users
             serviceCollection.AddTransient<GetCurrentUserInfoQueryHandler>();
-<<<<<<< HEAD
-=======
 
             // Profile
             serviceCollection.AddTransient<GetProfileByIdQueryHandler>();
@@ -52,16 +50,9 @@ namespace SportMap.Al.Extensions
             serviceCollection.AddTransient<GetPlaceQueryHandler>();
             serviceCollection.AddTransient<SearchPlacesQueryHandler>();
             serviceCollection.AddTransient<CreatePlaceCommandHandler>();
->>>>>>> origin/main
 
-            // Profile
-            serviceCollection.AddTransient<GetProfileByIdQueryHandler>();
-            serviceCollection.AddTransient<GetProfileByUsernameQueryHandler>();
-            serviceCollection.AddTransient<UpdateProfileCommandHandler>();
-
-            // Settings
-            serviceCollection.AddTransient<GetSettingsQueryHandler>();
-            serviceCollection.AddTransient<UpdateSettingsCommandHandler>();
+            // PlaceTypes
+            serviceCollection.AddTransient<GetPlaceTypesQueryHandler>();
         }
     }
 }

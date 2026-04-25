@@ -30,15 +30,12 @@ namespace SportMap.AL.UseCases.Profile
                     nameof(GetProfileByUsernameQueryHandler), nameof(Handle));
                 return Result<UserProfileDto>.WithError(ResultConstants.OperationCanceled);
             }
-<<<<<<< HEAD
             catch (Exception e)
             {
                 logger.LogError(e, "{class}.{method}: Unhandled exception",
                     nameof(GetProfileByUsernameQueryHandler), nameof(Handle));
                 return Result<UserProfileDto>.WithError(ResultConstants.InternalError);
             }
-=======
->>>>>>> origin/main
         }
     }
 }
