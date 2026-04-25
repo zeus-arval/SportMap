@@ -16,12 +16,8 @@ namespace SportMap.DAL.Extensions
         public static void AddDALServices(this IServiceCollection serviceCollection, IConfiguration configuration)
         {
             serviceCollection.AddDbContextPool<AppDbContext>(options =>
-<<<<<<< HEAD
                 options.UseNpgsql(configuration.GetConnectionString("sportmapdb"))
                        .ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
-=======
-                options.UseNpgsql(configuration.GetConnectionString("sportmapdb")));
->>>>>>> origin/main
 
             serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
             serviceCollection.AddScoped<IUserRepository, UserRepository>();

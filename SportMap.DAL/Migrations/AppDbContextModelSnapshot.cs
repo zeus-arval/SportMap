@@ -455,24 +455,19 @@ namespace SportMap.DAL.Migrations
             modelBuilder.Entity("DomainLayer.Entities.Post", b =>
                 {
                     b.HasOne("DomainLayer.Entities.User", "Author")
-<<<<<<< HEAD
                         .WithMany()
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("DomainLayer.Entities.Place", "Place")
-=======
->>>>>>> origin/main
                         .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("PlaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Author");
-<<<<<<< HEAD
 
                     b.Navigation("Place");
-=======
->>>>>>> origin/main
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.User", b =>
