@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using SportMap.Al.Extensions;
+using SportMap.DAL.Extensions;
+using SportMap.PL.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,12 +18,14 @@ builder.AddServiceDefaults();
 builder.AddRedisOutputCache("redis");
 builder.AddNpgsqlDataSource(connectionName: "sportmapdb");
 
-// Add services to the container.
-builder.Services.AddProblemDetails();
+builder.Services.AddDALServices(builder.Configuration);
+builder.Services.AddALServices();
 
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddProblemDetails();
 builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
+builder.Services.AddTransient<FeedController>();
 builder.Services.AddDataProtection();
 builder.Services.AddCors(options =>
 {
