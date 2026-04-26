@@ -1,7 +1,12 @@
 #!/bin/sh
 set -e
 
-: "${DOMAIN:?DOMAIN environment variable not set}"
+if [ -n "${DOMAIN_FILE}" ] && [ -f "${DOMAIN_FILE}" ]; then
+    DOMAIN=$(cat "${DOMAIN_FILE}")
+    export DOMAIN
+fi
+
+: "${DOMAIN:?DOMAIN environment variable not set (or DOMAIN_FILE not readable)}"
 
 envsubst '${DOMAIN}' < /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 
