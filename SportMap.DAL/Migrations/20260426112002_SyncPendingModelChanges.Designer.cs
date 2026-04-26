@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SportMap.DAL.DataContext;
@@ -11,9 +12,11 @@ using SportMap.DAL.DataContext;
 namespace SportMap.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260426112002_SyncPendingModelChanges")]
+    partial class SyncPendingModelChanges
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,99 +24,6 @@ namespace SportMap.DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("DomainLayer.Entities.Event", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Capacity")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("HostUserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("PlaceId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("RemovedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<uint>("XMin")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HostUserId");
-
-                    b.HasIndex("PlaceId");
-
-                    b.ToTable("Events");
-                });
-
-            modelBuilder.Entity("DomainLayer.Entities.EventParticipant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("EventId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("RemovedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<uint>("XMin")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("EventId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("EventParticipants");
-                });
 
             modelBuilder.Entity("DomainLayer.Entities.ImageData", b =>
                 {
@@ -261,8 +171,6 @@ namespace SportMap.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
-
-                    b.HasIndex("ImageId");
 
                     b.HasIndex("PlaceTypeId");
 
@@ -489,44 +397,6 @@ namespace SportMap.DAL.Migrations
                     b.ToTable("UserRoles");
                 });
 
-            modelBuilder.Entity("DomainLayer.Entities.Event", b =>
-                {
-                    b.HasOne("DomainLayer.Entities.User", "HostUser")
-                        .WithMany()
-                        .HasForeignKey("HostUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DomainLayer.Entities.Place", "Place")
-                        .WithMany()
-                        .HasForeignKey("PlaceId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("HostUser");
-
-                    b.Navigation("Place");
-                });
-
-            modelBuilder.Entity("DomainLayer.Entities.EventParticipant", b =>
-                {
-                    b.HasOne("DomainLayer.Entities.Event", "Event")
-                        .WithMany("Participants")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("DomainLayer.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Event");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("DomainLayer.Entities.ImageData", b =>
                 {
                     b.HasOne("DomainLayer.Entities.User", null)
@@ -567,11 +437,6 @@ namespace SportMap.DAL.Migrations
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("DomainLayer.Entities.ImageData", null)
-                        .WithMany()
-                        .HasForeignKey("ImageId")
-                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("DomainLayer.Entities.PlaceType", "PlaceType")
                         .WithMany()
@@ -621,11 +486,6 @@ namespace SportMap.DAL.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("UserRole");
-                });
-
-            modelBuilder.Entity("DomainLayer.Entities.Event", b =>
-                {
-                    b.Navigation("Participants");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.User", b =>
