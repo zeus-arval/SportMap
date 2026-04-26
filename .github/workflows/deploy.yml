@@ -2,7 +2,7 @@ name: Deploy to Production
 
 on:
   push:
-    branches: [main]
+    branches: [main, 52-nginx-routing]
 
 env:
   REGISTRY: ghcr.io
