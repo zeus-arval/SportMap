@@ -2,9 +2,15 @@ import { BaseService } from "./base.service";
 import type { PlaceTypeDto } from "@/types/place";
 export type { PlaceTypeDto };
 import { ResultOf } from "@/lib/result";
+import {ApiConfig} from "@/config/api";
 
 export class PlaceTypeService extends BaseService<PlaceTypeDto> {
   protected readonly endpoint = "place-types";
+
+  constructor() {
+    const baseUrl = ApiConfig.SecuredServerUrl;
+    super(baseUrl);
+  }
 
   async getAll(): Promise<ResultOf<PlaceTypeDto[]>> {
     try {

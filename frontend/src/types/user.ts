@@ -8,15 +8,6 @@ export type UserProfile = {
   roleName?: string | null;
 };
 
-export type UserPost = {
-  id: string;
-  title: string;
-  content: string;
-  status: number;
-  authorId: string | null;
-  createdAt: string;
-};
-
 export type UserSettings = {
   id: string;
   birthdatePrivacy: "public" | "private";

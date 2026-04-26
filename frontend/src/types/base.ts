@@ -5,4 +5,4 @@ export interface BaseData {
   removedAt?: string | null;
 }
 
-export interface Entity extends BaseData {}
+export type Entity = BaseData;

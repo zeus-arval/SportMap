@@ -3,9 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Flag, ExternalLink, MessageSquare, Clock, Share2 } from 'lucide-react';
 import { formatRelativeTime } from '@/lib/date';
 import { feedService } from '@/services/feed.service';
-import type { PostDto } from '@/types/post';
+import type { IPost } from '@/types/post';
 import type { PlaceDto } from '@/types/place';
-import DirectionsModal from './DirectionsModal';
+import DirectionsModal from '@/components/DirectionsModal';
 
 interface PlaceDetailSheetProps {
   place: PlaceDto | null;
@@ -18,7 +18,7 @@ export default function PlaceDetailSheet({
   onClose,
   onReport
 }: PlaceDetailSheetProps) {
-  const [posts, setPosts] = useState<PostDto[]>([]);
+  const [posts, setPosts] = useState<IPost[]>([]);
   const [isLoadingPosts, setIsLoadingPosts] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [isDirectionsModalOpen, setIsDirectionsModalOpen] = useState(false);

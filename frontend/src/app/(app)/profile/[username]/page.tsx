@@ -17,6 +17,8 @@ export default function ProfilePage() {
   const params = useParams<{ username: string }>();
   const router = useRouter();
   const currentUser = useCurrentUser();
+
+  if (params === null) notFound();
   const isOwn = currentUser?.username === params.username;
 
   const { profile, posts, settings, imageId, loading, notFound: userNotFound,

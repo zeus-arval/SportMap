@@ -10,14 +10,14 @@ import type { PlaceDto, PlaceTypeDto } from '@/types/place';
 import SearchBar from '@/components/SearchBar';
 
 // Dynamic import for MapView to avoid SSR issues
-const MapView = dynamic(() => import('@/components/MapView'), { 
+const MapView = dynamic(() => import('@/components/map/MapView'), {
   ssr: false,
   loading: () => <div className="w-full h-full bg-zinc-100 dark:bg-zinc-900 animate-pulse" />
 });
 
 function MapContent() {
   const searchParams = useSearchParams();
-  const placeIdFromUrl = searchParams.get('placeId');
+  const placeIdFromUrl = searchParams?.get('placeId');
   
   const [view, setView] = useState<'map' | 'list'>('map');
   const [places, setPlaces] = useState<PlaceDto[]>([]);

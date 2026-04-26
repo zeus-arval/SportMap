@@ -1,7 +1,9 @@
+import {ApiConfig} from "@/config/api";
+
 type CurrentUser = { id: string; username: string; firstName: string };
 
 export class UserService {
-  private readonly baseUrl = "/api";
+  private readonly serverUrl = ApiConfig.SecuredServerUrl;
   private cache: CurrentUser | null = null;
   private fetched = false;
   private inflight: Promise<CurrentUser | null> | null = null;
@@ -9,7 +11,7 @@ export class UserService {
   async getCurrentUser(): Promise<CurrentUser | null> {
     if (this.fetched) return this.cache;
     if (!this.inflight) {
-      this.inflight = fetch(`${this.baseUrl}/user/me`)
+      this.inflight = fetch(`${this.serverUrl}/user/me`)
         .then(async (r) => {
           if (!r.ok) return null;
           const data = (await r.json()) as CurrentUser;

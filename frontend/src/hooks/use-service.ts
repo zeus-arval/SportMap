@@ -24,6 +24,7 @@ export function useGetAll<T extends BaseData>(service: BaseService<T>) {
   }, [service]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refetch();
   }, [refetch]);
 
@@ -47,6 +48,7 @@ export function useGetById<T extends BaseData>(
   }, [service, id]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refetch();
   }, [refetch]);
 
