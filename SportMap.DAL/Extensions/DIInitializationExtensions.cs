@@ -29,6 +29,7 @@ namespace SportMap.DAL.Extensions
             serviceCollection.Configure<ImageStorageOptions>(configuration.GetSection("ImageStorage"));
             serviceCollection.AddScoped<IPlaceRepository, PlaceRepository>();
             serviceCollection.AddScoped<IPlaceTypeRepository, PlaceTypeRepository>();
+            serviceCollection.AddScoped<IEventRepository, EventRepository>();
         }
     }
 }

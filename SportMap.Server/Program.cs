@@ -6,8 +6,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using SportMap.DAL.DataContext;
+using SportMap.DAL.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Load optional local secrets override (gitignored)
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults();
@@ -116,6 +120,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+
+    using var scope = app.Services.CreateScope();
+    scope.ServiceProvider.GetRequiredService<AppDbContext>().MigrateAndSeed();
 }
 
 app.UseOutputCache();

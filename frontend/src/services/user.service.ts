@@ -1,4 +1,4 @@
-type CurrentUser = { username: string; firstName: string };
+type CurrentUser = { id: string; username: string; firstName: string };
 
 export class UserService {
   private readonly baseUrl = "/api";

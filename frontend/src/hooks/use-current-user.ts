@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { userService } from "@/services/user.service";
 
-export type CurrentUser = { username: string; firstName: string };
+export type CurrentUser = { id: string; username: string; firstName: string };
 
 export function useCurrentUser(): CurrentUser | null {
   const [user, setUser] = useState<CurrentUser | null>(null);

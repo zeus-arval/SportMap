@@ -40,7 +40,7 @@ namespace SportMap.PL.Controllers
             if (result.HasError)
                 return NotFound();
 
-            return Ok(new { username = result.Data!.Username, firstName = result.Data!.FirstName });
+            return Ok(new { id = result.Data!.Id, username = result.Data!.Username, firstName = result.Data!.FirstName });
         }
     }
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MapPin, Flag, ExternalLink, MessageSquare, Clock, Share2 } from 'lucide-react';
-import { formatRelativeTime } from '@/lib/date-utils';
+import { formatRelativeTime } from '@/lib/date';
 import { feedService } from '@/services/feed.service';
 import type { PostDto } from '@/types/post';
 import type { PlaceDto } from '@/types/place';

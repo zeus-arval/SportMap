@@ -1,39 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	<TargetFramework>net10.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<Nullable>enable</Nullable>
 	<UserSecretsId>sportmap-dal</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-    <Folder Include="Repositories\" />
+	<Folder Include="Models\" />
+	<Folder Include="Repositories\" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.5" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.5-beta1" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
-    <PackageReference Include="StackExchange.Redis" Version="2.9.32" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.4" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.4">
+	  <PrivateAssets>all</PrivateAssets>
+	  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	</PackageReference>
+	<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.4" />
+	<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.5" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.5-beta1" />
+	<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
+	<PackageReference Include="StackExchange.Redis" Version="2.9.32" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SportMap.AL.Abstractions\SportMap.AL.Abstractions.csproj" />
-    <ProjectReference Include="..\SportMap.DAL.Abstractions\SportMap.DAL.Abstractions.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DomainLayer\DomainLayer.csproj" />
-    <ProjectReference Include="..\SportMap.DAL.Abstractions\SportMap.DAL.Abstractions.csproj" />
+	<ProjectReference Include="..\DomainLayer\DomainLayer.csproj" />
+	<ProjectReference Include="..\SportMap.AL.Abstractions\SportMap.AL.Abstractions.csproj" />
+	<ProjectReference Include="..\SportMap.DAL.Abstractions\SportMap.DAL.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
