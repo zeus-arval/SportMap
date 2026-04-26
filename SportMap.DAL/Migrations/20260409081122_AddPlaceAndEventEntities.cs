@@ -12,25 +12,6 @@ namespace SportMap.DAL.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Image",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    FileName = table.Column<string>(type: "text", nullable: false),
-                    ContentType = table.Column<string>(type: "text", nullable: false),
-                    FileSize = table.Column<long>(type: "bigint", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    ModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    RemovedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    xmin = table.Column<uint>(type: "xid", rowVersion: true, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Image", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "PlaceTypes",
                 columns: table => new
                 {
@@ -71,10 +52,11 @@ namespace SportMap.DAL.Migrations
                 {
                     table.PrimaryKey("PK_Places", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Places_Image_ImageId",
+                        name: "FK_Places_Images_ImageId",
                         column: x => x.ImageId,
-                        principalTable: "Image",
-                        principalColumn: "Id");
+                        principalTable: "Images",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "FK_Places_PlaceTypes_PlaceTypeId",
                         column: x => x.PlaceTypeId,
@@ -210,9 +192,6 @@ namespace SportMap.DAL.Migrations
 
             migrationBuilder.DropTable(
                 name: "Places");
-
-            migrationBuilder.DropTable(
-                name: "Image");
 
             migrationBuilder.DropTable(
                 name: "PlaceTypes");

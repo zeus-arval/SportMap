@@ -72,6 +72,17 @@ namespace SportMap.DAL.DataContext
             modelBuilder.Entity<Place>(entity =>
             {
                 entity.ConfigureBaseModelFields();
+                entity.HasOne<ImageData>()
+                      .WithMany()
+                      .HasForeignKey(p => p.ImageId)
+                      .OnDelete(DeleteBehavior.SetNull);
+                entity.HasOne(p => p.Creator)
+                      .WithMany()
+                      .HasForeignKey(p => p.CreatorId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne(p => p.Reviewer)
+                      .WithMany()
+                      .HasForeignKey(p => p.ReviewerId);
             });
 
             modelBuilder.Entity<PlaceType>(entity =>

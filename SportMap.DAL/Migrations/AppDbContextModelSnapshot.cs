@@ -17,7 +17,7 @@ namespace SportMap.DAL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.4")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -113,49 +113,6 @@ namespace SportMap.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("EventParticipants");
-                });
-
-            modelBuilder.Entity("DomainLayer.Entities.Image", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ContentType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("ModifiedAt")
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<DateTime?>("RemovedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<uint>("XMin")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("xid")
-                        .HasColumnName("xmin");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Image");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.ImageData", b =>
@@ -304,6 +261,8 @@ namespace SportMap.DAL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatorId");
+
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("PlaceTypeId");
 
@@ -608,6 +567,11 @@ namespace SportMap.DAL.Migrations
                         .HasForeignKey("CreatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("DomainLayer.Entities.ImageData", null)
+                        .WithMany()
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("DomainLayer.Entities.PlaceType", "PlaceType")
                         .WithMany()
