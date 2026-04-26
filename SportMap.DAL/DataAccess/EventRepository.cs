@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using SportMap.DAL.Abstractions.Repositories;
 using SportMap.DAL.Common;
 using SportMap.DAL.DataContext;
+using SportMap.DAL.Extensions;
 
 namespace SportMap.DAL.DataAccess
 {
@@ -44,41 +45,21 @@ namespace SportMap.DAL.DataAccess
                     .Include(e => e.Place)
                     .Where(e => e.Status == EventStatus.Active && e.StartTime >= DateTime.UtcNow);
 
-                if (filter.DateFrom.HasValue)
-                    query = query.Where(e => e.StartTime >= filter.DateFrom.Value);
+                var dateFrom = filter.DateFrom;
+                if (dateFrom is DateTime from)
+                    query = query.Where(e => e.StartTime >= from);
 
-                if (filter.DateTo.HasValue)
-                    query = query.Where(e => e.StartTime <= filter.DateTo.Value);
+                var dateTo = filter.DateTo;
+                if (dateTo is DateTime to)
+                    query = query.Where(e => e.StartTime <= to);
 
                 // Distance filter — Haversine approximation in SQL
                 if (filter.Latitude.HasValue && filter.Longitude.HasValue && filter.RadiusKm.HasValue)
                 {
-                    var lat = filter.Latitude.Value;
-                    var lng = filter.Longitude.Value;
-                    var radius = filter.RadiusKm.Value;
-
-                    query = query.Where(e =>
-                        6371.0 * 2.0 * Math.Atan2(
-                            Math.Sqrt(
-                                Math.Sin((e.Place.Latitude - lat) * Math.PI / 180.0 / 2.0) *
-                                Math.Sin((e.Place.Latitude - lat) * Math.PI / 180.0 / 2.0) +
-                                Math.Cos(lat * Math.PI / 180.0) *
-                                Math.Cos(e.Place.Latitude * Math.PI / 180.0) *
-                                Math.Sin((e.Place.Longitude - lng) * Math.PI / 180.0 / 2.0) *
-                                Math.Sin((e.Place.Longitude - lng) * Math.PI / 180.0 / 2.0)
-                            ),
-                            Math.Sqrt(
-                                1.0 - (
-                                    Math.Sin((e.Place.Latitude - lat) * Math.PI / 180.0 / 2.0) *
-                                    Math.Sin((e.Place.Latitude - lat) * Math.PI / 180.0 / 2.0) +
-                                    Math.Cos(lat * Math.PI / 180.0) *
-                                    Math.Cos(e.Place.Latitude * Math.PI / 180.0) *
-                                    Math.Sin((e.Place.Longitude - lng) * Math.PI / 180.0 / 2.0) *
-                                    Math.Sin((e.Place.Longitude - lng) * Math.PI / 180.0 / 2.0)
-                                )
-                            )
-                        ) <= radius
-                    );
+                    query = query.WithinRadius(
+                        filter.Latitude.Value,
+                        filter.Longitude.Value,
+                        filter.RadiusKm.Value);
                 }
 
                 var events = await query

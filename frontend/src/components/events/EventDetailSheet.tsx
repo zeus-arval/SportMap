@@ -160,8 +160,7 @@ export default function EventDetailSheet({
 
   return (
     <AnimatePresence>
-      {eventId && (
-        <>
+      <>
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -387,8 +386,7 @@ export default function EventDetailSheet({
               </>
             )}
           </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+          </>
+        </AnimatePresence>
   );
 }
