@@ -6,5 +6,7 @@ namespace SportMap.DAL.Abstractions
     {
         Task<User?> GetByGoogleIdAsync(string googleId, CancellationToken cancellationToken = default);
         Task<User?> GetByUserNameAsync(string username, CancellationToken cancellationToken = default);
+        Task<User?> GetByIdWithProfileAsync(Guid id, CancellationToken cancellationToken = default);
+        Task<User?> GetByUsernameWithProfileAsync(string username, CancellationToken cancellationToken = default);
     }
 }

@@ -305,8 +305,6 @@ namespace SportMap.DAL.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.HasIndex("ImageId");
-
                     b.HasIndex("PlaceTypeId");
 
                     b.HasIndex("ReviewerId");
@@ -356,6 +354,9 @@ namespace SportMap.DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("AuthorId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text");
@@ -367,6 +368,9 @@ namespace SportMap.DAL.Migrations
                     b.Property<DateTime?>("ModifiedAt")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PlaceId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("RemovedAt")
                         .HasColumnType("timestamp with time zone");
@@ -386,6 +390,10 @@ namespace SportMap.DAL.Migrations
                         .HasColumnName("xmin");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("PlaceId");
 
                     b.ToTable("Posts");
                 });
@@ -601,10 +609,6 @@ namespace SportMap.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("DomainLayer.Entities.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId");
-
                     b.HasOne("DomainLayer.Entities.PlaceType", "PlaceType")
                         .WithMany()
                         .HasForeignKey("PlaceTypeId")
@@ -617,11 +621,27 @@ namespace SportMap.DAL.Migrations
 
                     b.Navigation("Creator");
 
-                    b.Navigation("Image");
-
                     b.Navigation("PlaceType");
 
                     b.Navigation("Reviewer");
+                });
+
+            modelBuilder.Entity("DomainLayer.Entities.Post", b =>
+                {
+                    b.HasOne("DomainLayer.Entities.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("DomainLayer.Entities.Place", "Place")
+                        .WithMany()
+                        .HasForeignKey("PlaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("Place");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.User", b =>

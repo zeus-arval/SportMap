@@ -1,3 +1,10 @@
+export interface PlaceTypeDto {
+  id: string;
+  name: string;
+  description: string;  
+  createdAt: string;
+}
+
 export interface PlaceDto {
   id: string;
   name: string;
@@ -13,13 +20,9 @@ export interface PlaceDto {
   createdAt: string;
   updatedAt?: string;
   status: string;
-}
-
-export interface PlaceTypeDto {
-  id: string;
-  name: string;
-  description: string;  
-  createdAt: string;
+  
+  // UI-specific / Additional fields
+  reviewerId?: string;
 }
 
 /** A place that hasn't been created in the DB yet — deferred until event creation. */
@@ -39,3 +42,5 @@ export type SelectedPlace = PlaceDto | PendingPlace;
 export function isPendingPlace(place: SelectedPlace): place is PendingPlace {
   return "pending" in place && place.pending === true;
 }
+export type Place = PlaceDto;
+export type PlaceType = PlaceTypeDto;

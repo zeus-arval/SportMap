@@ -1,0 +1,105 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: sportmapdb
+      POSTGRES_USER_FILE: /run/secrets/postgres_username
+      POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+    secrets:
+      - postgres_username
+      - postgres_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  redis:
+    image: redis:7-alpine
+    secrets:
+      - redis_password
+    entrypoint: ["sh", "-c", "redis-server --requirepass $$(cat /run/secrets/redis_password)"]
+    networks:
+      - backend
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+
+  server:
+    image: ghcr.io/sportmap-estonia/sportmap-server:latest
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_HTTP_PORTS: "8080"
+    ports:
+      - "8080:8080"
+    secrets:
+      - postgres_username
+      - postgres_password
+      - redis_password
+      - jwt_secret
+      - jwt_issuer
+      - jwt_audience
+      - google_client_id
+      - google_client_secret
+      - google_redirect_uri
+      - frontend_url
+    volumes:
+      - images_data:/data/images
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+
+  webfrontend:
+    image: ghcr.io/sportmap-estonia/sportmap-frontend:latest
+    environment:
+      NODE_ENV: production
+      services__server__http__0: http://server:8080
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+
+secrets:
+  postgres_username:
+    external: true
+  postgres_password:
+    external: true
+  redis_password:
+    external: true
+  jwt_secret:
+    external: true
+  jwt_issuer:
+    external: true
+  jwt_audience:
+    external: true
+  google_client_id:
+    external: true
+  google_client_secret:
+    external: true
+  google_redirect_uri:
+    external: true
+  frontend_url:
+    external: true
+
+networks:
+  backend:
+    driver: overlay
+
+volumes:
+  postgres_data:
+  images_data:
+    name: sportmap-images

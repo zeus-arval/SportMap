@@ -4,7 +4,6 @@ using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using SportMap.Al.Extensions;
-using SportMap.BLL.Extensions;
 using SportMap.DAL.Extensions;
 using SportMap.PL.Controllers;
 
@@ -28,7 +27,6 @@ public static class Extensions
 
             builder.Services.AddProblemDetails();
             builder.Services.AddDALServices(builder.Configuration);
-            builder.Services.AddBLLServices();
             builder.Services.AddALServices();
             builder.Services.AddServiceDiscovery();
             builder.Services.ConfigureHttpClientDefaults(http =>
