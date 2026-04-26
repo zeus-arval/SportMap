@@ -8,6 +8,7 @@ env:
   REGISTRY: ghcr.io
   SERVER_IMAGE: ghcr.io/sportmap-estonia/sportmap-server
   FRONTEND_IMAGE: ghcr.io/sportmap-estonia/sportmap-frontend
+  MIGRATION_IMAGE: ghcr.io/sportmap-estonia/sportmap-migrationservice
 
 jobs:
   deploy:
@@ -39,6 +40,18 @@ jobs:
           tags: |
             ${{ env.SERVER_IMAGE }}:latest
             ${{ env.SERVER_IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and push migration service image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: SportMap.MigrationService/Dockerfile
+          push: true
+          tags: |
+            ${{ env.MIGRATION_IMAGE }}:latest
+            ${{ env.MIGRATION_IMAGE }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SportMap.Server\SportMap.PL.csproj" />
+    <ProjectReference Include="..\SportMap.MigrationService\SportMap.MigrationService.csproj" />
   </ItemGroup>
 
   <ItemGroup>

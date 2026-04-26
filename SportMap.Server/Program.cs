@@ -2,10 +2,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using SportMap.DAL.DataContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,14 +90,6 @@ builder.Services
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-
-// Run EF migrations automatically on startup in production
-if (!app.Environment.IsDevelopment())
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
 
 var forwardedOptions = new ForwardedHeadersOptions
 {

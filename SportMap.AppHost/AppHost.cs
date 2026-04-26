@@ -24,11 +24,16 @@ var pgDb = builder.AddPostgres("postgres", pgUsername, pgPassword)
     .WithPgAdmin(pgAdmin => pgAdmin.WithHostPort(5050))
     .AddDatabase("sportmapdb");
 
+var migrations = builder.AddProject<Projects.SportMap_MigrationService>("migrationservice")
+    .WithReference(pgDb)
+    .WaitFor(pgDb);
+
 var server = builder.AddProject<Projects.SportMap_PL>("server")
     .WithReference(cache)
     .WaitFor(cache)
     .WithReference(pgDb)
     .WaitFor(pgDb)
+    .WaitForCompletion(migrations)
     .WithHttpHealthCheck("/health")
     .WithExternalHttpEndpoints()
     .WithEnvironment("Jwt__SecretKey", jwtSecret)
