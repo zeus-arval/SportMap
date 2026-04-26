@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using SportMap.AL.Abstractions.Services;
+using SportMap.AL.UseCases.Events;
 using SportMap.AL.Common;
 using SportMap.AL.UseCases.Feeds;
 using SportMap.AL.UseCases.Images;
@@ -53,6 +54,15 @@ namespace SportMap.Al.Extensions
 
             // PlaceTypes
             serviceCollection.AddTransient<GetPlaceTypesQueryHandler>();
+
+            // Events
+            serviceCollection.AddTransient<CreateEventCommandHandler>();
+            serviceCollection.AddTransient<GetEventByIdQueryHandler>();
+            serviceCollection.AddTransient<GetUpcomingEventsQueryHandler>();
+            serviceCollection.AddTransient<GetEventsByPlaceQueryHandler>();
+            serviceCollection.AddTransient<GetFilteredEventsQueryHandler>();
+            serviceCollection.AddTransient<JoinEventCommandHandler>();
+            serviceCollection.AddTransient<LeaveEventCommandHandler>();
         }
     }
 }

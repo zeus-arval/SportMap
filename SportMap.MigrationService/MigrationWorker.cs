@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using SportMap.DAL.DataContext;
+using SportMap.DAL.Extensions;
 
 namespace SportMap.MigrationService;
 
 public class MigrationWorker(
     IServiceProvider services,
+    IHostEnvironment environment,
     IHostApplicationLifetime lifetime,
     ILogger<MigrationWorker> logger) : BackgroundService
 {
@@ -27,6 +29,12 @@ public class MigrationWorker(
                     nameof(MigrationWorker), pending.Count, string.Join(", ", pending));
                 await db.Database.MigrateAsync(stoppingToken);
                 logger.LogInformation("{Worker}: all migrations applied successfully.", nameof(MigrationWorker));
+            }
+
+            if (environment.IsDevelopment())
+            {
+                logger.LogInformation("{Worker}: seeding development data.", nameof(MigrationWorker));
+                db.Seed();
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)

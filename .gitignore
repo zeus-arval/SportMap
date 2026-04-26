@@ -53,3 +53,6 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Local secrets override (never commit)
+/SportMap.Server/appsettings.Local.json

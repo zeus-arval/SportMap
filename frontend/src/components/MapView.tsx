@@ -43,9 +43,7 @@ export default function MapView({ places, selectedPlace: selectedPlaceProp, onPl
   // When user clicks marker, notify parent
   const handlePlaceClick = (place: PlaceDto) => {
     setSelectedPlace(place);
-    if (onPlaceSelect) {
-      onPlaceSelect(place);
-    }
+    onPlaceSelect?.(place);
   };
 
   const handlePlaceClose = () => {
