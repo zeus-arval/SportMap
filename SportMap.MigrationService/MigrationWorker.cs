@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using SportMap.DAL.DataContext;
 using SportMap.DAL.Extensions;
@@ -10,26 +11,19 @@ public class MigrationWorker(
     IHostApplicationLifetime lifetime,
     ILogger<MigrationWorker> logger) : BackgroundService
 {
+    public const string ActivitySourceName = "Migrations";
+    private static readonly ActivitySource s_activitySource = new(ActivitySourceName);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        using var activity = s_activitySource.StartActivity("Migrating database", ActivityKind.Client);
+
         try
         {
             using var scope = services.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-            var pending = (await db.Database.GetPendingMigrationsAsync(stoppingToken)).ToList();
-
-            if (pending.Count == 0)
-            {
-                logger.LogInformation("{Worker}: database is up to date, no pending migrations.", nameof(MigrationWorker));
-            }
-            else
-            {
-                logger.LogInformation("{Worker}: applying {Count} pending migration(s): {Migrations}",
-                    nameof(MigrationWorker), pending.Count, string.Join(", ", pending));
-                await db.Database.MigrateAsync(stoppingToken);
-                logger.LogInformation("{Worker}: all migrations applied successfully.", nameof(MigrationWorker));
-            }
+            await RunMigrationAsync(db, logger, stoppingToken);
 
             if (environment.IsDevelopment())
             {
@@ -37,17 +31,36 @@ public class MigrationWorker(
                 db.Seed();
             }
         }
-        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
-        {
-            logger.LogWarning("{Worker}: migration cancelled.", nameof(MigrationWorker));
-            Environment.ExitCode = 1;
-        }
         catch (Exception ex)
         {
+            activity?.AddException(ex);
             logger.LogCritical(ex, "{Worker}: migration failed — server will not start.", nameof(MigrationWorker));
-            Environment.ExitCode = 1;
+            throw;
         }
 
         lifetime.StopApplication();
+    }
+
+    private static async Task RunMigrationAsync(
+        AppDbContext db,
+        ILogger logger,
+        CancellationToken cancellationToken)
+    {
+        var pending = (await db.Database.GetPendingMigrationsAsync(cancellationToken)).ToList();
+
+        if (pending.Count == 0)
+        {
+            logger.LogInformation("{Worker}: database is up to date, no pending migrations.", nameof(MigrationWorker));
+            return;
+        }
+
+        logger.LogInformation(
+            "{Worker}: applying {Count} pending migration(s): {Migrations}",
+            nameof(MigrationWorker), pending.Count, string.Join(", ", pending));
+
+        var strategy = db.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(() => db.Database.MigrateAsync(cancellationToken));
+
+        logger.LogInformation("{Worker}: all migrations applied successfully.", nameof(MigrationWorker));
     }
 }
