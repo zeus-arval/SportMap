@@ -6,6 +6,7 @@ COPY SportMap.AL.Abstractions/SportMap.AL.Abstractions.csproj SportMap.AL.Abstra
 COPY SportMap.AL/SportMap.AL.csproj SportMap.AL/
 COPY SportMap.DAL.Abstractions/SportMap.DAL.Abstractions.csproj SportMap.DAL.Abstractions/
 COPY SportMap.DAL/SportMap.DAL.csproj SportMap.DAL/
+COPY SportMap.ServiceDefaults/SportMap.ServiceDefaults.csproj SportMap.ServiceDefaults/
 COPY SportMap.PL/SportMap.PL.csproj SportMap.PL/
 RUN dotnet restore SportMap.PL/SportMap.PL.csproj
 
@@ -14,6 +15,7 @@ COPY SportMap.AL.Abstractions/ SportMap.AL.Abstractions/
 COPY SportMap.AL/ SportMap.AL/
 COPY SportMap.DAL.Abstractions/ SportMap.DAL.Abstractions/
 COPY SportMap.DAL/ SportMap.DAL/
+COPY SportMap.ServiceDefaults/ SportMap.ServiceDefaults/
 COPY SportMap.PL/ SportMap.PL/
 
 RUN dotnet publish SportMap.PL/SportMap.PL.csproj -c Release -o /app/publish --no-restore
