@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: SportMap.Server/Dockerfile
+          file: SportMap.PL/Dockerfile
           push: true
           tags: |
             ${{ env.SERVER_IMAGE }}:latest

@@ -5,7 +5,7 @@ VisualStudioVersion = 18.3.11520.95
 MinimumVisualStudioVersion = 17.8.0.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SportMap.AppHost", "SportMap.AppHost\SportMap.AppHost.csproj", "{DB71A80C-0291-4EA4-A624-B18E985BF59A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SportMap.PL", "SportMap.Server\SportMap.PL.csproj", "{F1DE665F-2DC1-446E-AB5B-076712B163BC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SportMap.PL", "SportMap.PL\SportMap.PL.csproj", "{F1DE665F-2DC1-446E-AB5B-076712B163BC}"
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "frontend", "frontend\frontend.esproj", "{FE20DF03-E77D-41BD-9AA5-FB5A1DBED93C}"
 EndProject
