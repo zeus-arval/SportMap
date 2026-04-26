@@ -47,3 +47,12 @@ From the repo root:
 ```bash
 aspire run
 ```
+
+## Database Migrations
+
+Add a new EF Core migration from the DAL project:
+
+```bash
+cd SportMap.DAL
+dotnet ef migrations add <MigrationName>
+```
