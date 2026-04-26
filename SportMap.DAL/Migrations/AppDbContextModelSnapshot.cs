@@ -459,7 +459,15 @@ namespace SportMap.DAL.Migrations
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.SetNull);
 
+                    b.HasOne("DomainLayer.Entities.Place", "Place")
+                        .WithMany()
+                        .HasForeignKey("PlaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Author");
+
+                    b.Navigation("Place");
                 });
 
             modelBuilder.Entity("DomainLayer.Entities.User", b =>
