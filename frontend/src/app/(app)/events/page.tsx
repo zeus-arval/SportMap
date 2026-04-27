@@ -8,7 +8,6 @@ import EventFilterBar from "@/components/events/EventFilterBar";
 import { eventService } from "@/services/event.service";
 import { placeService } from "@/services/place.service";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { useCreateMenu } from "@/components/navigation/CreateMenuContext";
 import { haversineKm } from "@/lib/distance";
 import type { EventData, EventFilters } from "@/types/event";
 
@@ -23,8 +22,7 @@ export default function EventsPage() {
   const placeMapRef = useRef<Record<string, { latitude: number; longitude: number }>>({});
   const [placeMap, setPlaceMap] = useState<Record<string, { latitude: number; longitude: number }>>({});
   const currentUser = useCurrentUser();
-  const geoFetchedRef = useRef(false);
-  const { open: openCreateMenu } = useCreateMenu();
+const geoFetchedRef = useRef(false);
 
   const error = actionError ?? fetchError;
 
