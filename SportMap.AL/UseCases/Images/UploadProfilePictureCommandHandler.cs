@@ -93,7 +93,7 @@ namespace SportMap.AL.UseCases.Images
                     return Result<UploadImageResponseDto>.WithError(ResultConstants.InternalError);
                 }
 
-                var user = await unitOfWork.UserRepository.GetByIdAsync(command.UploaderId, cancellationToken);
+                var user = await unitOfWork.UserRepository.GetByIdAsync(command.UploaderId, ct: cancellationToken);
                 if (user is null)
                 {
                     logger.LogError("{class}.{method}: User {userId} not found, cleaning up image and file",

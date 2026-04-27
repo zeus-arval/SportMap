@@ -27,13 +27,17 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddTransient<FeedController>();
 builder.Services.AddDataProtection();
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? ["http://localhost:3000"];
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 builder.Services.AddCookiePolicy(options =>
@@ -116,8 +120,8 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseOutputCache();
 app.UseCors("AllowAll");
+app.UseOutputCache(); // must come after UseCors so cached responses include CORS headers
 app.MapDefaultEndpoints();
 app.UseCookiePolicy();
 app.UseAuthentication();

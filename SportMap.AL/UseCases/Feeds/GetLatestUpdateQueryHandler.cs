@@ -1,4 +1,3 @@
-using DomainLayer.Entities.Enums;
 using Microsoft.Extensions.Logging;
 using SportMap.AL.Abstractions.UseCases;
 using SportMap.DAL.Abstractions;
@@ -13,7 +12,7 @@ namespace SportMap.AL.UseCases.Feeds
 
             try
             {
-                var posts = await unitOfWork.PostRepository.FindAsync(p => p.PlaceId == query.PlaceId && p.Status == StatusType.Verified, cancellationToken);
+                var posts = await unitOfWork.PostRepository.GetPosts(query.ToParameters(), cancellationToken);
                 
                 if (posts.Count == 0)
                 {

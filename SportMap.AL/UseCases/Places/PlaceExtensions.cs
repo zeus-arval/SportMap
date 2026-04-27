@@ -1,6 +1,7 @@
 using DomainLayer.Entities;
 using DomainLayer.Entities.Enums;
 using SportMap.AL.DTOs;
+using SportMap.DAL.Abstractions.Repositories;
 
 namespace SportMap.AL.UseCases.Places
 {
@@ -73,6 +74,22 @@ namespace SportMap.AL.UseCases.Places
                     Name = dto.Name,
                     Description = dto.Description
                 };
+            }
+        }
+
+        extension(GetPlaceQuery query)
+        {
+            public GetPlaceParameters ToParameters()
+            {
+                return new GetPlaceParameters(query.Id, query.Status, query.PlaceTypeId);
+            }
+        }
+
+        extension(SearchPlacesQuery query)
+        {
+            public SearchPlaceParameters ToParameters()
+            {
+                return new SearchPlaceParameters(query.SearchTerm, StatusType.Verified);
             }
         }
     }

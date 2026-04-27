@@ -40,8 +40,8 @@ namespace SportMap.PL.Common
             Response.Cookies.Append("access_token", authResult.AccessToken, new CookieOptions
             {
                 HttpOnly = true,
-                Secure = configuration.GetValue<bool>("Cookie:Secure"),
-                SameSite = SameSiteMode.Lax,
+                Secure = true,
+                SameSite = SameSiteMode.None,
                 Expires = DateTimeOffset.UtcNow.AddMinutes(15)
             });
 

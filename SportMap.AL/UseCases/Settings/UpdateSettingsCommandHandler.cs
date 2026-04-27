@@ -28,7 +28,7 @@ namespace SportMap.AL.UseCases.Settings
                     return Result<UserSettingsDto>.WithError(
                         string.Format(ResultConstants.InvalidPrivacyValue, command.BirthdatePrivacy));
 
-                var user = await unitOfWork.UserRepository.GetByIdAsync(command.UserId, cancellationToken);
+                var user = await unitOfWork.UserRepository.GetByIdAsync(command.UserId, ct: cancellationToken);
 
                 if (user is null)
                     return Result<UserSettingsDto>.WithError(string.Format(ResultConstants.NotFound, command.UserId));

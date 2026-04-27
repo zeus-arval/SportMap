@@ -1,6 +1,7 @@
 using SportMap.AL.Abstractions.Dtos;
 using SportMap.AL.Abstractions.UseCases;
 using SportMap.AL.Constants;
+using SportMap.AL.UseCases.Profile;
 using SportMap.DAL.Abstractions;
 
 namespace SportMap.AL.UseCases.Users
@@ -14,7 +15,7 @@ namespace SportMap.AL.UseCases.Users
             GetCurrentUserInfoQuery query,
             CancellationToken cancellationToken)
         {
-            var user = await unitOfWork.UserRepository.GetByIdAsync(query.UserId, cancellationToken);
+            var user = await unitOfWork.UserRepository.GetUserById(query.UserId, query.ToParameters(), cancellationToken);
 
             if (user is null)
                 return Result<UserInfoDto>.WithError(

@@ -132,7 +132,7 @@ namespace SportMap.PL.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<Results<Ok<IReadOnlyList<PostDTO>>, NotFound, InternalServerError>> GetPosts(
+        public async Task<Results<Ok<IReadOnlyList<PostDto>>, NotFound, InternalServerError>> GetPosts(
             Guid id, CancellationToken cancellationToken)
         {
             try

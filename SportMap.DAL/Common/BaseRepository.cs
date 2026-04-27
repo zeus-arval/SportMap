@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SportMap.DAL.Abstractions;
 using SportMap.DAL.DataContext;
-using System.Linq.Expressions;
 
 namespace SportMap.DAL.Common
 {
@@ -14,18 +13,26 @@ namespace SportMap.DAL.Common
         protected readonly ILogger _logger = logger;
         protected readonly DbSet<TData> _dbSet = dbSet;
 
-        public async Task<TData?> GetByIdAsync(Guid id, CancellationToken ct = default)
+        public Task<TData?> GetByIdAsync(Guid id, ISpecification<TData> specification, CancellationToken ct = default)
         {
             try
             {
-                var entity = await _dbSet.FindAsync(new object[] { id }, ct).ConfigureAwait(false);
+                var query = _dbSet.AsNoTracking();
 
+                foreach (var include in specification.Includes)
+                {
+                    query.Include(include);
+                }
+
+                var entity = query.FirstOrDefault(x => x.Id == id);
+                
                 if (entity is null)
                 {
                     logger.LogInformation($"{nameof(BaseRepository<TData>)}.{nameof(GetByIdAsync)}: Entity was not found");
+                    return null!;
                 }
 
-                return entity;
+                return Task.FromResult(entity)!;
             }
             catch (Exception ex)
             {
@@ -34,15 +41,17 @@ namespace SportMap.DAL.Common
             }
         }
 
-        public async Task<IReadOnlyList<TData>> GetAllAsync(CancellationToken ct = default, params Expression<Func<TData, object>>[] includes)
+        public async Task<IReadOnlyList<TData>> GetAllAsync(ISpecification<TData> specification, CancellationToken ct = default)
         {
             try
             {
                 var query = _dbSet.AsNoTracking();
-                foreach (var include in includes)
+
+                foreach (var include in specification.Includes)
                 {
                     query = query.Include(include);
                 }
+
                 var entities = await query.ToListAsync(ct);
                 return entities.AsReadOnly();
             }
@@ -53,11 +62,23 @@ namespace SportMap.DAL.Common
             }
         }
 
-        public async Task<IReadOnlyList<TData>> FindAsync(Expression<Func<TData, bool>> predicate, CancellationToken ct = default)
+        public async Task<IReadOnlyList<TData>> FindAsync(ISpecification<TData> specification, CancellationToken ct = default)
         {
             try
             {
-                var entities = await _dbSet.AsNoTracking().Where(predicate).ToListAsync(ct);
+                var query = _dbSet.AsNoTracking();
+                
+                if (specification.Criteria != null)
+                {
+                    query = query.Where(specification.Criteria);
+                }
+
+                foreach (var include in specification.Includes)
+                {
+                    query = query.Include(include);
+                }
+
+                var entities = await query.ToListAsync(ct);
                 return entities.AsReadOnly();
             }
             catch (Exception ex)

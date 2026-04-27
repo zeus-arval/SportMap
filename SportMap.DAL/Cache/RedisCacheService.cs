@@ -21,7 +21,7 @@ namespace SportMap.DAL.Cache
         private readonly ILogger _logger = logger;
         private readonly IDatabase _database = connectionMultiplexer.GetDatabase();
 
-        public bool ExistsAsync(string key, CancellationToken cancellationToken = default)
+        public bool Exists(string key, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -30,22 +30,22 @@ namespace SportMap.DAL.Cache
             }
             catch (RedisConnectionException e)
             {
-                _logger.LogError(e, LogMessages.RedisConnectionError, nameof(RedisCacheService), nameof(ExistsAsync), key);
+                _logger.LogError(e, LogMessages.RedisConnectionError, nameof(RedisCacheService), nameof(Exists), key);
                 return false;
             }
             catch (RedisTimeoutException e)
             {
-                _logger.LogError(e, LogMessages.RedisTimeoutError, nameof(RedisCacheService), nameof(ExistsAsync), key);
+                _logger.LogError(e, LogMessages.RedisTimeoutError, nameof(RedisCacheService), nameof(Exists), key);
                 return false;
             }
             catch (RedisException e)
             {
-                _logger.LogError(e, LogMessages.RedisError, nameof(RedisCacheService), nameof(ExistsAsync), key);
+                _logger.LogError(e, LogMessages.RedisError, nameof(RedisCacheService), nameof(Exists), key);
                 return false;
             }
             catch (OperationCanceledException e)
             {
-                _logger.LogWarning(e, LogMessages.OperationCancelledWarning, nameof(RedisCacheService), nameof(ExistsAsync), key);
+                _logger.LogWarning(e, LogMessages.OperationCancelledWarning, nameof(RedisCacheService), nameof(Exists), key);
                 return false;
             }
         }
