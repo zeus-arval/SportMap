@@ -6,17 +6,11 @@ namespace SportMap.DAL.Extensions;
 public static class DatabaseSeeder
 {
     /// <summary>
-    /// Applies pending migrations and seeds sample data for local development.
-    /// Safe to call on every startup — migrations are idempotent and seed
-    /// rows use ON CONFLICT to avoid duplicates while keeping dates fresh.
+    /// Seeds sample data for local development. Idempotent — seed rows use
+    /// ON CONFLICT to avoid duplicates while keeping dates fresh.
     /// </summary>
-    public static void MigrateAndSeed(this AppDbContext db)
+    public static void Seed(this AppDbContext db)
     {
-        if (db.Database.GetPendingMigrations().Any())
-        {
-            db.Database.Migrate();
-        }
-
         SeedEvents(db);
     }
 

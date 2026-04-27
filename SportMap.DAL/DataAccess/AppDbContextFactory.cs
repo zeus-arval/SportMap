@@ -10,17 +10,14 @@ namespace SportMap.DAL.DataAccess
         public AppDbContext CreateDbContext(string[] args)
         {
             var config = new ConfigurationBuilder()
-                .AddUserSecrets<AppDbContextFactory>()
+                .AddUserSecrets("d150b327-b015-49c0-b7c4-94155aeaeb40")
                 .Build();
 
-            var host = config["postgres-host"];
-            var port = config["postgres-port"];
-            var db = config["postgres-database"];
-            var user = config["postgres-username"];
-            var pass = config["postgres-password"];
-            
+            var user = config["Parameters:postgres-username"];
+            var pass = config["Parameters:postgres-password"];
+
             var connectionString =
-                $"Host={host};Port={port};Database={db};Username={user};Password={pass}";
+                $"Host=localhost;Port=5432;Database=sportmapdb;Username={user};Password={pass}";
 
             var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseNpgsql(connectionString)

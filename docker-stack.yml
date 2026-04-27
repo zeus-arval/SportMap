@@ -32,6 +32,18 @@ services:
         constraints:
           - node.role == manager
 
+  migrationservice:
+    image: ghcr.io/sportmap-estonia/sportmap-migrationservice:latest
+    secrets:
+      - postgres_username
+      - postgres_password
+    networks:
+      - backend
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+
   server:
     image: ghcr.io/sportmap-estonia/sportmap-server:latest
     environment:
