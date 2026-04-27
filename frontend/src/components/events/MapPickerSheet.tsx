@@ -12,6 +12,8 @@ interface MapPickerSheetProps {
   onClose: () => void;
   onPlacePicked: (place: SelectedPlace) => void;
   creatorId: string;
+  /** When true, only allows picking new coordinates (no existing places) */
+  coordinatesOnly?: boolean;
 }
 
 const TALLINN_CENTER: [number, number] = [24.7421, 59.4379];
@@ -21,6 +23,7 @@ export default function MapPickerSheet({
   onClose,
   onPlacePicked,
   creatorId,
+  coordinatesOnly = false,
 }: MapPickerSheetProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,10 +43,35 @@ export default function MapPickerSheet({
     lat: number;
     lng: number;
   } | null>(null);
+  const [pickedAddress, setPickedAddress] = useState<string | null>(null);
   const [placeName, setPlaceName] = useState("");
   const [placeTypes, setPlaceTypes] = useState<PlaceTypeDto[]>([]);
   const [selectedTypeId, setSelectedTypeId] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // Reverse geocode when coordinates are picked
+  useEffect(() => {
+    if (!pickedCoords) {
+      setPickedAddress(null);
+      return;
+    }
+
+    const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+    if (!token) return;
+
+    fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${pickedCoords.lng},${pickedCoords.lat}.json?access_token=${token}&types=place,locality,neighborhood,address&limit=1`
+    )
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.features?.length > 0) {
+          setPickedAddress(data.features[0].place_name ?? null);
+        } else {
+          setPickedAddress(null);
+        }
+      })
+      .catch(() => setPickedAddress(null));
+  }, [pickedCoords]);
 
   // Load place types
   useEffect(() => {
@@ -83,42 +111,44 @@ export default function MapPickerSheet({
 
       mapInstanceRef.current = map;
 
-      // Load existing places and add markers — matching MapView style
-      map.on("load", async () => {
-        const result = await placeService.getAll();
-        if (result.isSucceed && result.value) {
-          result.value.forEach((place: PlaceDto) => {
-            const el = document.createElement("div");
-            el.className = "custom-marker";
-            el.style.width = "30px";
-            el.style.height = "30px";
-            el.style.backgroundColor = "#a855f7";
-            el.style.borderRadius = "50%";
-            el.style.border = "2px solid #fff";
-            el.style.cursor = "pointer";
-            el.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
+// Load existing places and add markers — matching MapView style
+        if (!coordinatesOnly) {
+          map.on("load", async () => {
+            const result = await placeService.getAll();
+            if (result.isSucceed && result.value) {
+              result.value.forEach((place: PlaceDto) => {
+                const el = document.createElement("div");
+                el.className = "custom-marker";
+                el.style.width = "30px";
+                el.style.height = "30px";
+                el.style.backgroundColor = "#a855f7";
+                el.style.borderRadius = "50%";
+                el.style.border = "2px solid #fff";
+                el.style.cursor = "pointer";
+                el.style.boxShadow = "0 0 10px rgba(0,0,0,0.5)";
 
-            el.addEventListener("click", (e) => {
-              e.stopPropagation();
-              // Clear any new-pin marker
-              if (newPinMarkerRef.current) {
-                newPinMarkerRef.current.remove();
-                newPinMarkerRef.current = null;
-              }
-              setPickedCoords(null);
-              setPlaceName("");
-              setSelectedExisting(place);
-              setMode("existing");
-              setError(null);
-            });
+                el.addEventListener("click", (e) => {
+                  e.stopPropagation();
+                  // Clear any new-pin marker
+                  if (newPinMarkerRef.current) {
+                    newPinMarkerRef.current.remove();
+                    newPinMarkerRef.current = null;
+                  }
+                  setPickedCoords(null);
+                  setPlaceName("");
+                  setSelectedExisting(place);
+                  setMode("existing");
+                  setError(null);
+                });
 
-            const marker = new mapboxgl.Marker(el)
-              .setLngLat([place.longitude, place.latitude])
-              .addTo(map);
-            placeMarkersRef.current.push(marker);
+                const marker = new mapboxgl.Marker(el)
+                  .setLngLat([place.longitude, place.latitude])
+                  .addTo(map);
+                placeMarkersRef.current.push(marker);
+              });
+            }
           });
         }
-      });
 
       // Click on empty map → new pin mode
       map.on("click", (e: { lngLat: { lat: number; lng: number } }) => {
@@ -179,23 +209,26 @@ export default function MapPickerSheet({
         setError("Tap on the map to pick a location");
         return;
       }
-      if (!placeName.trim()) {
+      if (!coordinatesOnly && !placeName.trim()) {
         setError("Enter a name for this place");
         return;
       }
-      if (!selectedTypeId) {
+      if (!coordinatesOnly && !selectedTypeId) {
         setError("Select a place type");
         return;
       }
 
       const pending: PendingPlace = {
         pending: true,
-        name: placeName.trim(),
-        description: `Event location at ${pickedCoords.lat.toFixed(4)}, ${pickedCoords.lng.toFixed(4)}`,
-        placeTypeId: selectedTypeId,
+        name: coordinatesOnly ? "New Location" : placeName.trim(),
+        description: coordinatesOnly 
+          ? `Location at ${pickedCoords.lat.toFixed(4)}, ${pickedCoords.lng.toFixed(4)}`
+          : `Event location at ${pickedCoords.lat.toFixed(4)}, ${pickedCoords.lng.toFixed(4)}`,
+        placeTypeId: coordinatesOnly ? "" : selectedTypeId,
         latitude: pickedCoords.lat,
         longitude: pickedCoords.lng,
         creatorId,
+        address: pickedAddress ?? undefined,
       };
 
       onPlacePicked(pending);
@@ -205,7 +238,7 @@ export default function MapPickerSheet({
 
   const confirmDisabled =
     mode === "idle" ||
-    (mode === "new" && (!pickedCoords || !placeName.trim())) ||
+    (mode === "new" && (!pickedCoords || (!coordinatesOnly && (!placeName.trim() || !selectedTypeId)))) ||
     (mode === "existing" && !selectedExisting);
 
   const confirmLabel =
@@ -279,17 +312,25 @@ export default function MapPickerSheet({
                       {pickedCoords.lat.toFixed(5)},{" "}
                       {pickedCoords.lng.toFixed(5)}
                     </span>
+                    {pickedAddress && (
+                      <>
+                        <span className="text-gray-600">•</span>
+                        <span className="text-gray-400 truncate max-w-[200px]">{pickedAddress}</span>
+                      </>
+                    )}
                   </div>
 
-                  <input
-                    type="text"
-                    value={placeName}
-                    onChange={(e) => setPlaceName(e.target.value)}
-                    placeholder="Name this place (e.g. Kadriorg Park)"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 outline-none focus:border-blue-500/50 transition-colors"
-                  />
+                  {!coordinatesOnly && (
+                    <input
+                      type="text"
+                      value={placeName}
+                      onChange={(e) => setPlaceName(e.target.value)}
+                      placeholder="Name this place (e.g. Kadriorg Park)"
+                      className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder-gray-600 outline-none focus:border-blue-500/50 transition-colors"
+                    />
+                  )}
 
-                  {placeTypes.length > 0 && (
+                  {!coordinatesOnly && placeTypes.length > 0 && (
                     <select
                       value={selectedTypeId}
                       onChange={(e) => setSelectedTypeId(e.target.value)}

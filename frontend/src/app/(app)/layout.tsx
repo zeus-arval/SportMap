@@ -1,4 +1,5 @@
 import ResponsiveNav from "@/components/navigation/ResponsiveNav";
+import { CreateMenuProvider } from "@/components/navigation/CreateMenuContext";
 
 export default function ApplicationLayout({
   children,
@@ -6,7 +7,7 @@ export default function ApplicationLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <>
+    <CreateMenuProvider>
       {/* Responsive Navigation (fixed position) */}
       <ResponsiveNav />
         
@@ -16,6 +17,6 @@ export default function ApplicationLayout({
       <main className="h-[calc(100vh-5rem)] md:h-screen md:ml-16">
         {children}
       </main>
-    </>
+    </CreateMenuProvider>
   );
 }

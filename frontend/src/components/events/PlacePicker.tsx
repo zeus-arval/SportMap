@@ -6,6 +6,7 @@ import type { PlaceDto, SelectedPlace } from "@/types/place";
 import { isPendingPlace } from "@/types/place";
 import { placeService } from "@/services/place.service";
 import MapPickerSheet from "./MapPickerSheet";
+import MapPreview from "@/components/ui/MapPreview";
 
 interface PlacePickerProps {
   value: SelectedPlace | null;
@@ -66,28 +67,38 @@ export default function PlacePicker({
 
   if (value) {
     const name = value.name;
-    const address = isPendingPlace(value) ? null : value.address;
+    const address = value.address;
+    const coords = { lat: value.latitude, lng: value.longitude };
     return (
-      <div className="flex items-center gap-2 bg-white/5 border border-blue-500/30 rounded-xl px-4 py-3">
-        <MapPin size={14} className="text-blue-400 shrink-0" />
-        <div className="flex-1 min-w-0">
-          <p className="text-white text-sm font-medium truncate">
-            {name}
-            {isPendingPlace(value) && (
-              <span className="ml-1.5 text-xs text-yellow-400/70 font-normal">(new)</span>
-            )}
-          </p>
-          {address && (
-            <p className="text-gray-500 text-xs truncate">{address}</p>
-          )}
+      <div className="space-y-2">
+        <div className="relative">
+          <MapPreview
+            latitude={coords.lat}
+            longitude={coords.lng}
+            className="h-32 rounded-xl"
+          />
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className="absolute top-2 right-2 p-2 rounded-full bg-black/60 text-white hover:bg-red-500 transition-colors"
+          >
+            <X size={14} />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => onChange(null)}
-          className="p-1 rounded-full hover:bg-white/10 text-gray-400 transition-colors"
-        >
-          <X size={14} />
-        </button>
+        <div className="flex items-center gap-2 bg-white/5 border border-blue-500/30 rounded-xl px-4 py-2">
+          <MapPin size={14} className="text-blue-400 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-sm font-medium truncate">
+              {name}
+              {isPendingPlace(value) && (
+                <span className="ml-1.5 text-xs text-yellow-400/70 font-normal">(new)</span>
+              )}
+            </p>
+            {address && (
+              <p className="text-gray-500 text-xs truncate">{address}</p>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
