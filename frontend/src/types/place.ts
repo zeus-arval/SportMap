@@ -34,6 +34,7 @@ export interface PendingPlace {
   latitude: number;
   longitude: number;
   creatorId: string;
+  address?: string;
 }
 
 /** Either an existing place from the DB or a new place pending creation. */

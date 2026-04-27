@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { Calendar, MapPin, Plus } from "lucide-react";
 import EventCard from "@/components/events/EventCard";
 import EventDetailSheet from "@/components/events/EventDetailSheet";
-import CreateEventSheet from "@/components/events/CreateEventSheet";
 import EventFilterBar from "@/components/events/EventFilterBar";
 import { eventService } from "@/services/event.service";
 import { placeService } from "@/services/place.service";
@@ -17,14 +16,13 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [filters, setFilters] = useState<EventFilters>({});
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const placeMapRef = useRef<Record<string, { latitude: number; longitude: number }>>({});
   const [placeMap, setPlaceMap] = useState<Record<string, { latitude: number; longitude: number }>>({});
   const currentUser = useCurrentUser();
-  const geoFetchedRef = useRef(false);
+const geoFetchedRef = useRef(false);
 
   const error = actionError ?? fetchError;
 
@@ -131,13 +129,13 @@ export default function EventsPage() {
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setShowCreate(true)}
+          {/* <button
+            onClick={openCreateMenu}
             className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-white text-xs font-bold shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] transition-all active:scale-[0.98]"
           >
             <Plus size={14} />
             New Event
-          </button>
+          </button> */}
         </div>
 
         {/* Filter bar */}
@@ -189,13 +187,6 @@ export default function EventsPage() {
           </div>
         )}
       </div>
-
-      {/* Create event bottom sheet */}
-      <CreateEventSheet
-        open={showCreate}
-        onClose={() => setShowCreate(false)}
-        onCreated={handleCreated}
-      />
 
       {/* Event detail bottom sheet */}
       <EventDetailSheet

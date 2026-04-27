@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, AlignLeft, Users } from "lucide-react";
+import { X, Calendar, AlignLeft, Users, Camera } from "lucide-react";
 import { eventService } from "@/services/event.service";
 import { placeService } from "@/services/place.service";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -10,6 +10,7 @@ import type { CreateEventData } from "@/types/event";
 import type { SelectedPlace } from "@/types/place";
 import { isPendingPlace } from "@/types/place";
 import PlacePicker from "./PlacePicker";
+import PhotoUpload from "@/components/ui/PhotoUpload";
 
 interface CreateEventSheetProps {
   open: boolean;
@@ -27,6 +28,7 @@ export default function CreateEventSheet({
   const [selectedPlace, setSelectedPlace] = useState<SelectedPlace | null>(null);
   const [startTime, setStartTime] = useState("");
   const [capacity, setCapacity] = useState("");
+  const [images, setImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const currentUser = useCurrentUser();
@@ -37,6 +39,7 @@ export default function CreateEventSheet({
     setSelectedPlace(null);
     setStartTime("");
     setCapacity("");
+    setImages([]);
     setError(null);
   };
 
@@ -131,7 +134,7 @@ export default function CreateEventSheet({
               stiffness: 300,
               mass: 0.8,
             }}
-            className="fixed bottom-0 left-0 right-0 bg-[#12121a] rounded-t-3xl border-t border-white/10 z-50 max-h-[85vh] overflow-y-auto"
+            className="fixed bottom-0 left-0 right-0 mx-auto bg-[#12121a] rounded-t-3xl border-t border-white/10 z-50 max-h-[85vh] overflow-y-auto max-w-lg"
           >
             {/* Handle */}
             <div className="sticky top-0 bg-[#12121a] z-20 pt-4 pb-2 rounded-t-3xl">
@@ -229,6 +232,15 @@ export default function CreateEventSheet({
                     placeholder="Leave empty for unlimited"
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-600 outline-none focus:border-blue-500/50 transition-colors"
                   />
+                </div>
+
+                {/* Photos */}
+                <div>
+                  <label className="flex items-center text-gray-400 text-xs font-medium mb-1.5">
+                    <Camera size={12} className="mr-1.5" />
+                    Photos (optional)
+                  </label>
+                  <PhotoUpload images={images} onChange={setImages} maxImages={4} />
                 </div>
               </div>
 
