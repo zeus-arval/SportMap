@@ -9,11 +9,6 @@ export interface PlaceFilters {
 export class PlaceService extends BaseService<PlaceDto> {
   protected readonly endpoint = 'places';
 
-  constructor() {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    super(baseUrl);
-  }
-
   async getAll(filters?: PlaceFilters): Promise<ResultOf<PlaceDto[]>> {
     try {
       let url = this.url;
@@ -53,7 +48,7 @@ export class PlaceService extends BaseService<PlaceDto> {
     creatorId: string;
   }): Promise<ResultOf<PlaceDto>> {
     try {
-      const response = await fetch('/api/places', {
+      const response = await fetch(this.url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

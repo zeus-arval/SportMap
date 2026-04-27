@@ -85,6 +85,31 @@ services:
       update_config:
         order: start-first
 
+  nginx:
+    image: ghcr.io/sportmap-estonia/sportmap-nginx:latest
+    environment:
+      DOMAIN_FILE: /run/secrets/nginx_domain
+    secrets:
+      - nginx_domain
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - type: bind
+        source: /etc/letsencrypt
+        target: /etc/letsencrypt
+        read_only: true
+      - type: bind
+        source: /var/www/certbot
+        target: /var/www/certbot
+        read_only: true
+    networks:
+      - backend
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+
 secrets:
   postgres_username:
     external: true
@@ -105,6 +130,8 @@ secrets:
   google_redirect_uri:
     external: true
   frontend_url:
+    external: true
+  nginx_domain:
     external: true
 
 networks:

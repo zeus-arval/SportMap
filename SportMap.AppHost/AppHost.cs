@@ -56,14 +56,43 @@ var server = builder.AddProject<Projects.SportMap_PL>("server")
 
 if (builder.ExecutionContext.IsPublishMode)
 {
-    builder.AddDockerfile("webfrontend", "../frontend")
+    var nginxDomain = builder.AddParameter("nginx-domain");
+
+    var webfrontend = builder.AddDockerfile("webfrontend", "../frontend")
         .WithHttpEndpoint(port: 3000, env: "PORT")
         .WithReference(server)
         .WaitFor(server)
-        .WithExternalHttpEndpoints()
         .PublishAsDockerComposeService((resource, service) =>
         {
             service.Name = "webfrontend";
+        });
+
+    builder.AddDockerfile("nginx", "../nginx")
+        .WithEnvironment("DOMAIN", nginxDomain)
+        .WaitFor(server)
+        .WaitFor(webfrontend)
+        .WithHttpEndpoint(targetPort: 80, port: 80, name: "http")
+        .WithEndpoint(targetPort: 443, port: 443, name: "https", scheme: "https")
+        .WithExternalHttpEndpoints()
+        .PublishAsDockerComposeService((resource, service) =>
+        {
+            service.Name = "nginx";
+            service.AddVolume(new Aspire.Hosting.Docker.Resources.ServiceNodes.Volume
+            {
+                Name = "letsencrypt",
+                Type = "bind",
+                Source = "/etc/letsencrypt",
+                Target = "/etc/letsencrypt",
+                ReadOnly = true
+            });
+            service.AddVolume(new Aspire.Hosting.Docker.Resources.ServiceNodes.Volume
+            {
+                Name = "certbot-webroot",
+                Type = "bind",
+                Source = "/var/www/certbot",
+                Target = "/var/www/certbot",
+                ReadOnly = true
+            });
         });
 }
 else

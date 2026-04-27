@@ -5,11 +5,6 @@ import { ResultOf } from '@/lib/result';
 export class FeedService extends BaseService<PostDto> {
   protected readonly endpoint = 'feed';
 
-  constructor() {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-    super(baseUrl);
-  }
-
   async getByPlaceId(placeId: string): Promise<ResultOf<PostDto[]>> {
     try {
       const url = `${this.url}?placeId=${placeId}`;
