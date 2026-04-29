@@ -9,7 +9,7 @@ export default function LoginPage() {
     const publicApiUrl = process.env.NEXT_PUBLIC_API_URL || "https://localhost:7485";
 
     const handleLogin = () => {
-        window.location.href = `${publicApiUrl}/api/auth/login/google`;
+        window.location.href = `${publicApiUrl}/auth/login/google`;
     }
 
     const handleGuest = () => {

@@ -6,5 +6,5 @@ export interface IPost extends BaseData {
   status: number;
   authorId: string | null;
   createdAt: string;
-  placeId: string | null;
+  placeId: string;
 }

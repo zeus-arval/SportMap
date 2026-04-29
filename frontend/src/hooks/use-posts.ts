@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useCallback } from 'react';
-import { IPost } from "@/model/post";
+import { IPost } from "@/types/post";
 import { feedService } from "../services/feed.service";
 
 interface UsePostsResult {
@@ -64,7 +64,8 @@ export function usePosts() : UsePostsResult{
       if (!cancelled && postsResult.isSucceed && postsResult.value){
         setPosts(postsResult.value);
       }
-      else{
+      else {
+          setPosts([]);
         setNotFound(true);
       }
     };
