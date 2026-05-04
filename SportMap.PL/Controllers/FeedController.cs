@@ -53,6 +53,33 @@ namespace SportMap.PL.Controllers
             return TypedResults.Ok(posts);
         }
 
+        [HttpGet]
+        public async Task<Results<InternalServerError, Ok<IReadOnlyList<PostDto>>>> Get()
+        {
+            AL.Abstractions.UseCases.Result<IReadOnlyList<PostDto>> result;
+
+            try
+            {
+                var query = new GetPostQuery(null, StatusType.Verified, null);
+                result = await getPosts.Handle(query, CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "{className}.{methodName}: Unhandled exception occured: {message}", nameof(FeedController), nameof(Get), e.Message);
+                return TypedResults.InternalServerError();
+            }
+
+            if (result.HasError)
+            {
+                _logger.LogError("{controllerName}.{methodName}: Error occurred while fetching posts: {ErrorMessage}", nameof(FeedController), nameof(Get), result.ErrorMessage);
+                return TypedResults.InternalServerError();
+            }
+
+            var posts = result.Data;
+
+            return TypedResults.Ok(posts);
+        }
+
         // GET: api/feed/{id}
         [HttpGet("{id:guid}")]
         public async Task<Results<InternalServerError, NotFound, Ok<PostDto>>> Get(Guid id)
