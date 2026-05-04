@@ -33,7 +33,7 @@ export default function BottomNav() {
       {tabs.map((tab) => {
         const isActive =
           tab.id === "profile"
-            ? pathname.startsWith("/profile")
+            ? pathname?.startsWith("/profile")
             : pathname === tab.href;
         return (
           <Link href={tab.href} key={tab.id} className="flex-1 flex justify-center">

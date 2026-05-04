@@ -1,9 +1,15 @@
 import type { BaseData } from "@/types/base";
 import { BaseService } from "./base.service";
 import type { Result } from "@/lib/result";
+import {ApiConfig} from "@/config/api";
 
 export class ImageService extends BaseService<BaseData> {
   protected readonly endpoint = "profile-picture";
+
+  constructor() {
+    const baseUrl = ApiConfig.SecuredServerUrl;
+    super(baseUrl);
+  }
 
   async getProfilePictureByUsername(
     username: string

@@ -14,7 +14,7 @@ namespace SportMap.AL.UseCases.PlaceTypes
 
             try
             {
-                var placeTypesData = await unitOfWork.PlaceTypeRepository.GetAllAsync(cancellationToken);
+                var placeTypesData = await unitOfWork.PlaceTypeRepository.GetAllPlaceTypes(cancellationToken);
                 
                 var placeTypes = placeTypesData
                     .Select(pt => pt.Map())

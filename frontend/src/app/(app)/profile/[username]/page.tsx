@@ -17,6 +17,8 @@ export default function ProfilePage() {
   const params = useParams<{ username: string }>();
   const router = useRouter();
   const currentUser = useCurrentUser();
+
+  if (params === null) notFound();
   const isOwn = currentUser?.username === params.username;
 
   const { profile, posts, settings, imageId, loading, notFound: userNotFound,
@@ -218,7 +220,7 @@ export default function ProfilePage() {
                       </button>
                     </div>
                     <p className="text-gray-400 text-xs leading-relaxed line-clamp-2">{post.content}</p>
-                    <p className="text-gray-600 text-xs mt-1">{new Date(post.createdAt).toLocaleDateString()}</p>
+                    <p className="text-gray-600 text-xs mt-1">{new Date(post?.createdAt ?? '').toLocaleDateString()}</p>
                   </motion.div>
                 ))}
               </div>

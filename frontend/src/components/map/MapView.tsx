@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import PlaceDetailSheet from './PlaceDetailSheet';
-import { RecenterButton } from './navigation/RecenterButton';
+import { RecenterButton } from '@/components/button/RecenterButton';
 import type { PlaceDto } from '@/types/place';
 
 interface MapViewProps {

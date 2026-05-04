@@ -9,6 +9,11 @@ export interface PlaceFilters {
 export class PlaceService extends BaseService<PlaceDto> {
   protected readonly endpoint = 'places';
 
+  constructor() {
+    const baseUrl = ApiConfig.SecuredServerUrl;
+    super(baseUrl);
+  }
+
   async getAll(filters?: PlaceFilters): Promise<ResultOf<PlaceDto[]>> {
     try {
       let url = this.url;
@@ -77,4 +82,5 @@ export class PlaceService extends BaseService<PlaceDto> {
 }
 
 import { ResultOf } from '@/lib/result';
+import {ApiConfig} from "@/config/api";
 export const placeService = new PlaceService();

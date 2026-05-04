@@ -17,13 +17,13 @@ namespace SportMap.PL.Controllers
         GetPostQueryHandler getPosts,
         CreatePostCommandHandler createPosts,
         GetLatestUpdateQueryHandler getLatestUpdate,
-        ILogger<FeedController> logger) : BaseController<PostDTO>(logger)
+        ILogger<FeedController> logger) : BaseController<PostDto>(logger)
     {
         // GET: api/feed
         [HttpGet]
-        public async Task<Results<InternalServerError, NotFound, Ok<IReadOnlyList<PostDTO>>>> Get([FromQuery] Guid? placeId)
+        public async Task<Results<InternalServerError, NotFound, Ok<IReadOnlyList<PostDto>>>> Get([FromQuery] Guid? placeId)
         {
-            AL.Abstractions.UseCases.Result<IReadOnlyList<PostDTO>>? result;
+            AL.Abstractions.UseCases.Result<IReadOnlyList<PostDto>>? result;
 
             try
             {
@@ -53,11 +53,38 @@ namespace SportMap.PL.Controllers
             return TypedResults.Ok(posts);
         }
 
+        [HttpGet]
+        public async Task<Results<InternalServerError, Ok<IReadOnlyList<PostDto>>>> Get()
+        {
+            AL.Abstractions.UseCases.Result<IReadOnlyList<PostDto>> result;
+
+            try
+            {
+                var query = new GetPostQuery(null, StatusType.Verified, null);
+                result = await getPosts.Handle(query, CancellationToken.None);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "{className}.{methodName}: Unhandled exception occured: {message}", nameof(FeedController), nameof(Get), e.Message);
+                return TypedResults.InternalServerError();
+            }
+
+            if (result.HasError)
+            {
+                _logger.LogError("{controllerName}.{methodName}: Error occurred while fetching posts: {ErrorMessage}", nameof(FeedController), nameof(Get), result.ErrorMessage);
+                return TypedResults.InternalServerError();
+            }
+
+            var posts = result.Data;
+
+            return TypedResults.Ok(posts);
+        }
+
         // GET: api/feed/{id}
         [HttpGet("{id:guid}")]
-        public async Task<Results<InternalServerError, NotFound, Ok<PostDTO>>> Get(Guid id)
+        public async Task<Results<InternalServerError, NotFound, Ok<PostDto>>> Get(Guid id)
         {
-            AL.Abstractions.UseCases.Result<IReadOnlyList<PostDTO>> result;
+            AL.Abstractions.UseCases.Result<IReadOnlyList<PostDto>> result;
 
             try
             {
@@ -113,10 +140,9 @@ namespace SportMap.PL.Controllers
 
         // POST: api/feed
         [HttpPost]
-        [AllowAnonymous]
-        public async Task<Results<InternalServerError, BadRequest, CreatedAtRoute<PostDTO>>> CreatePost([FromBody] CreatePostRequest request)
+        public async Task<Results<InternalServerError, BadRequest, CreatedAtRoute<PostDto>>> CreatePost([FromBody] CreatePostRequest request)
         {
-            if (request.Title.IsNullOrEmpty() || request.Content.IsNullOrEmpty() || request.PlaceId == Guid.Empty)
+            if (request.Title.IsNullOrEmpty() || request.Content.IsNullOrEmpty())
             {
                 _logger.LogWarning("Title, content or placeId is null, empty or default");
 
@@ -127,7 +153,7 @@ namespace SportMap.PL.Controllers
                            ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             Guid? authorId = Guid.TryParse(subClaim, out var parsed) ? parsed : null;
 
-            var command = new CreatePostCommand(request.Title, request.Content, authorId, request.PlaceId);
+            var command = new CreatePostCommand(request.Title, request.Content, authorId);
             var result = await createPosts.Handle(command, CancellationToken.None);
 
             if (result.HasError)
@@ -139,10 +165,9 @@ namespace SportMap.PL.Controllers
         }
     }
 
-    public class CreatePostRequest(string title, string content, Guid placeId)
+    public class CreatePostRequest(string title, string content)
     {
         public string Title { get; init; } = title;
         public string Content { get; init; } = content;
-        public Guid PlaceId { get; init; } = placeId;
     }
 }

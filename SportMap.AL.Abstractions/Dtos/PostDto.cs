@@ -3,11 +3,11 @@ using SportMap.AL.Abstractions;
 
 namespace SportMap.AL.DTOs
 {
-    public class PostDTO : IDTO
+    public class PostDto : IDTO
     {
-        public PostDTO() { }
+        public PostDto() { }
 
-        public PostDTO(Guid id, string title, string content, StatusType status, Guid? authorId = null, Guid? placeId = null)
+        public PostDto(Guid id, string title, string content, StatusType status, Guid? authorId = null, Guid? placeId = null)
         {
             Id = id;
             Title = title;

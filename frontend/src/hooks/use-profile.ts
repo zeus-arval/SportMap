@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { imageService } from "@/services/image.service";
-import { profileService, UserProfile, UserPost, UserSettings } from "@/services/profile.service";
+import { IPost } from '@/types/post';
+import { profileService, UserProfile, UserSettings } from "@/services/profile.service";
+import { feedService } from "@/services/feed.service";
 
 interface UseProfileResult {
   profile: UserProfile | null;
-  posts: UserPost[];
+  posts: IPost[];
   settings: UserSettings | null;
   imageId: string | null;
   loading: boolean;
@@ -16,7 +18,7 @@ interface UseProfileResult {
 
 export function useProfile(username: string, isOwn: boolean): UseProfileResult {
   const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [posts, setPosts] = useState<UserPost[]>([]);
+  const [posts, setPosts] = useState<IPost[]>([]);
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [imageId, setImageId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +40,7 @@ export function useProfile(username: string, isOwn: boolean): UseProfileResult {
       setImageId(pictureResult);
       setProfile(profileResult.value);
       setLoading(false);
-      const postsResult = await profileService.getPostsByUserId(profileResult.value.id);
+      const postsResult = await feedService.getPostsByUserId(profileResult.value.id);
       if (!cancelled && postsResult.isSucceed && postsResult.value) setPosts(postsResult.value);
     };
     load();

@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DTOs\**" />
+    <EmbeddedResource Remove="DTOs\**" />
+    <None Remove="DTOs\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\SportMap.AL.Abstractions\SportMap.AL.Abstractions.csproj" />
     <ProjectReference Include="..\SportMap.BLL\SportMap.BLL.csproj" />
     <ProjectReference Include="..\SportMap.DAL\SportMap.DAL.csproj" />

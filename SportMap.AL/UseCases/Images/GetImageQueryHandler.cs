@@ -26,8 +26,7 @@ namespace SportMap.AL.UseCases.Images
             {
                 var cacheKey = $"image:{query.Id}";
 
-                // 1. Cache hit
-                if (cache.ExistsAsync(cacheKey, cancellationToken))
+                if (cache.Exists(cacheKey, cancellationToken))
                 {
                     var cachedBytes = await cache.GetAsync<byte[]>(cacheKey, cancellationToken);
                     if (cachedBytes is not null)
@@ -35,13 +34,11 @@ namespace SportMap.AL.UseCases.Images
                             new ImageServeResult(cachedBytes, DetectContentType(cachedBytes)));
                 }
 
-                // 2. DB lookup + soft-delete check (no file I/O until after this)
-                var image = await unitOfWork.ImageRepository.GetByIdAsync(query.Id, cancellationToken);
+                var image = await unitOfWork.ImageRepository.GetImage(query.ToParameters(), cancellationToken);
                 if (image is null || image.RemovedAt != null)
                     return Result<ImageServeResult>.WithError(
                         string.Format(ResultConstants.NotFound, query.Id));
 
-                // 3. Read file bytes from storage
                 byte[] bytes;
                 try
                 {
@@ -56,7 +53,6 @@ namespace SportMap.AL.UseCases.Images
                     return Result<ImageServeResult>.WithError(ResultConstants.StorageUnavailable);
                 }
 
-                // 4. Cache and return
                 await cache.SetAsync(cacheKey, bytes, TimeSpan.FromDays(1), cancellationToken);
                 return Result<ImageServeResult>.WithData(
                     new ImageServeResult(bytes, DetectContentType(bytes)));

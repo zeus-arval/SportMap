@@ -1,7 +1,7 @@
 import { ResultOf } from "@/lib/result";
-import type { UserProfile, UserPost, UserSettings, UpdateProfileRequest } from "@/types/user";
-
-export type { UserProfile, UserPost, UserSettings, UpdateProfileRequest };
+import type { UserProfile, UserSettings, UpdateProfileRequest } from "@/types/user";
+import {IPost} from '@/types/post';
+export type { UserProfile, UserSettings, UpdateProfileRequest };
 
 class ProfileService {
   private readonly baseUrl = "/api";
@@ -25,19 +25,6 @@ class ProfileService {
       if (response.status === 404) return ResultOf.notFound(id);
       if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
       return ResultOf.withValue((await response.json()) as UserProfile);
-    } catch (error) {
-      return ResultOf.withError(
-        error instanceof Error ? error : new Error(String(error))
-      );
-    }
-  }
-
-  async getPostsByUserId(userId: string): Promise<ResultOf<UserPost[]>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/profile/${userId}/posts`);
-      if (response.status === 404) return ResultOf.withValue([]);
-      if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
-      return ResultOf.withValue((await response.json()) as UserPost[]);
     } catch (error) {
       return ResultOf.withError(
         error instanceof Error ? error : new Error(String(error))

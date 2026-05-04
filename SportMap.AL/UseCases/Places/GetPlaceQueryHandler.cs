@@ -1,4 +1,3 @@
-using DomainLayer.Entities;
 using Microsoft.Extensions.Logging;
 using SportMap.AL.Abstractions.Services;
 using SportMap.AL.Abstractions.UseCases;
@@ -12,28 +11,27 @@ namespace SportMap.AL.UseCases.Places
     {
         public async Task<Result<IReadOnlyList<PlaceDto>>> Handle(GetPlaceQuery query, CancellationToken cancellationToken)
         {
-            IReadOnlyList<PlaceDto> places;
             logger.LogInformation("{className}.{methodName}: Trying to retrieve places", nameof(GetPlaceQueryHandler), nameof(Handle));
 
             try
             {
                 var id = query.Id?.ToString();
-                if (query.Id != null && cache.ExistsAsync(id!))
+                if (query.Id != null && cache.Exists(id!))
                 {
                     var place = await cache.GetAsync<PlaceDto>(id!, cancellationToken);
                     return Result<IReadOnlyList<PlaceDto>>.WithData(place.AsReadonlyList());
                 }
 
-                var placeData = await unitOfWork.PlaceRepository.GetAllAsync(cancellationToken, place => place.PlaceType);
-                var filteredPlaces = placeData
-                    .Where(place => place.Status.Equals(query.Status))
-                    .FilterIfNotNull(query.Id, (place, id) => place.Id == id)
-                    .FilterIfNotNull(query.PlaceTypeId, (place, ptId) => place.PlaceTypeId == ptId);
+                var placeData = await unitOfWork.PlaceRepository.GetPlaces(query.ToParameters(), cancellationToken);
 
-                places = filteredPlaces
+                var places = placeData
+                    .FilterIfNotNull(query.Id, (place, id) => place.Id == id)
+                    .FilterIfNotNull(query.PlaceTypeId, (place, ptId) => place.PlaceTypeId == ptId)
                     .Select(place => place.Map())
                     .ToList()
                     .AsReadOnly();
+
+                return Result<IReadOnlyList<PlaceDto>>.WithData(places);
             }
             catch (OperationCanceledException oce) when (cancellationToken.IsCancellationRequested)
             {
@@ -45,8 +43,6 @@ namespace SportMap.AL.UseCases.Places
                 logger.LogError(e, "{class}.{method}: Unhandled exception {message}", nameof(GetPlaceQueryHandler), nameof(Handle), e.Message);
                 return Result<IReadOnlyList<PlaceDto>>.WithError(e.Message);
             }
-
-            return Result<IReadOnlyList<PlaceDto>>.WithData(places);
         }
     }
 }

@@ -5,12 +5,26 @@ using Microsoft.Extensions.Logging;
 using SportMap.DAL.Abstractions.Repositories;
 using SportMap.DAL.Common;
 using SportMap.DAL.DataContext;
+using SportMap.DAL.Specifications;
 
 namespace SportMap.DAL.Repositories
 {
     public class ImageRepository(AppDbContext context, ILogger<ImageRepository> logger)
         : BaseRepository<ImageData>(context, logger, context.Images), IImageRepository
     {
+        public Task<ImageData?> GetImage(GetImageParameters parameters, CancellationToken ct = default)
+        {
+            var specification = new ImageSpecification(parameters);
+
+            if (!parameters.Id.HasValue)
+            {
+                logger.LogWarning("{class}.{method}: No ID provided in parameters, returning null", nameof(ImageRepository), nameof(GetImage));
+                return Task.FromResult<ImageData?>(null);
+            }
+
+            return GetByIdAsync(parameters.Id.Value, specification, ct);
+        }
+
         public async Task SoftDeleteAsync(Guid id, CancellationToken ct = default)
         {
             var rowsAffected = await context.Images

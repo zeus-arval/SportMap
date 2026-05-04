@@ -3,6 +3,7 @@ using SportMap.AL.Abstractions.Dtos;
 using SportMap.AL.Abstractions.Services;
 using SportMap.AL.Abstractions.UseCases;
 using SportMap.AL.Constants;
+using SportMap.AL.UseCases.Profile;
 using SportMap.DAL.Abstractions;
 
 namespace SportMap.AL.UseCases.Images
@@ -24,7 +25,7 @@ namespace SportMap.AL.UseCases.Images
 
             try
             {
-                var user = await unitOfWork.UserRepository.GetByIdAsync(command.UserId, cancellationToken);
+                var user = await unitOfWork.UserRepository.GetUserById(command.UserId, command.ToParameters(), cancellationToken);
                 if (user is null)
                     return Result<UploadImageResponseDto>.WithError(
                         string.Format(ResultConstants.NotFound, command.UserId));

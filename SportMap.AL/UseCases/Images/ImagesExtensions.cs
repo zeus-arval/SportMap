@@ -1,5 +1,7 @@
 using DomainLayer.Entities;
 using SportMap.AL.Abstractions.Dtos;
+using System.Security.Cryptography;
+using SportMap.DAL.Abstractions.Repositories;
 
 namespace SportMap.AL.UseCases.Images
 {
@@ -27,6 +29,17 @@ namespace SportMap.AL.UseCases.Images
                     Id = dto.Id,
                     Name = dto.Name,
                     Status = dto.Status
+                };
+            }
+        }
+
+        extension(GetImageQuery query)
+        {
+            public GetImageParameters ToParameters()
+            {
+                return new GetImageParameters
+                {
+                    Id = query.Id,
                 };
             }
         }
